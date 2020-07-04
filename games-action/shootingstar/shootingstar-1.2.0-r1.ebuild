@@ -1,8 +1,8 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-inherit autotools eutils gnome2-utils
+inherit autotools desktop gnome2-utils
 
 # Note: currently segfaults on startup, but that's also in the previous ebuild
 # See https://bugs.gentoo.org/607428
@@ -34,7 +34,7 @@ src_prepare() {
 	eautoreconf
 }
 
-src_install () {
+src_install() {
 	default
 	newicon -s 128 data/textures/body1.png ${PN}.png
 	make_desktop_entry ${PN} "Shooting Star"

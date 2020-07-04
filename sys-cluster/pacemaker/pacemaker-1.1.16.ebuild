@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -16,8 +16,7 @@ SRC_URI="https://github.com/ClusterLabs/${PN}/archive/${MY_P}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64 hppa x86"
-REQUIRED_USE="cman? ( !heartbeat )"
-IUSE="acl cman heartbeat smtp snmp static-libs"
+IUSE="acl heartbeat smtp snmp static-libs"
 
 DEPEND="${PYTHON_DEPS}
 	app-text/docbook-xsl-stylesheets
@@ -25,7 +24,6 @@ DEPEND="${PYTHON_DEPS}
 	sys-cluster/cluster-glue
 	>=sys-cluster/libqb-0.14.0
 	sys-cluster/resource-agents
-	cman? ( sys-cluster/cman )
 	heartbeat? ( >=sys-cluster/heartbeat-3.0.0 )
 	!heartbeat? ( sys-cluster/corosync )
 	smtp? ( net-libs/libesmtp )
@@ -53,13 +51,11 @@ src_configure() {
 	fi
 	# appends lib to localstatedir automatically
 	econf \
-		--libdir=/usr/$(get_libdir) \
 		--localstatedir=/var \
-		--disable-dependency-tracking \
 		--disable-fatal-warnings \
 		$(use_with acl) \
-		$(use_with cman cs-quorum) \
-		$(use_with cman cman) \
+		--without-cs-quorum \
+		--without-cman \
 		$(use_with heartbeat) \
 		$(use_with smtp esmtp) \
 		$(use_with snmp) \
@@ -70,9 +66,9 @@ src_configure() {
 src_install() {
 	default
 	rm -rf "${D}"/var/run "${D}"/etc/init.d
-	newinitd "${FILESDIR}/${PN}.initd" ${PN} || die
+	newinitd "${FILESDIR}/${PN}.initd" ${PN}
 	if has_version "<sys-cluster/corosync-2.0"; then
 		insinto /etc/corosync/service.d
-		newins "${FILESDIR}/${PN}.service" ${PN} || die
+		newins "${FILESDIR}/${PN}.service" ${PN}
 	fi
 }

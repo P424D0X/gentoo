@@ -1,16 +1,20 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: git-r3.eclass
 # @MAINTAINER:
 # Michał Górny <mgorny@gentoo.org>
+# @SUPPORTED_EAPIS: 4 5 6 7
 # @BLURB: Eclass for fetching and unpacking git repositories.
 # @DESCRIPTION:
 # Third generation eclass for easing maintenance of live ebuilds using
 # git as remote repository.
 
 case "${EAPI:-0}" in
-	0|1|2|3|4|5|6|7)
+	0|1|2|3)
+		die "Unsupported EAPI=${EAPI} (obsolete) for ${ECLASS}"
+		;;
+	4|5|6|7)
 		;;
 	*)
 		die "Unsupported EAPI=${EAPI} (unknown) for ${ECLASS}"
@@ -21,11 +25,13 @@ EXPORT_FUNCTIONS src_unpack
 
 if [[ ! ${_GIT_R3} ]]; then
 
+PROPERTIES+=" live"
+
 if [[ ! ${_INHERITED_BY_GIT_2} ]]; then
 	if [[ ${EAPI:-0} != [0123456] ]]; then
-		BDEPEND=">=dev-vcs/git-1.8.2.1"
+		BDEPEND=">=dev-vcs/git-1.8.2.1[curl]"
 	else
-		DEPEND=">=dev-vcs/git-1.8.2.1"
+		DEPEND=">=dev-vcs/git-1.8.2.1[curl]"
 	fi
 fi
 
@@ -84,6 +90,8 @@ fi
 : ${EGIT_MIN_CLONE_TYPE:=shallow}
 
 # @ECLASS-VARIABLE: EGIT3_STORE_DIR
+# @USER_VARIABLE
+# @DEFAULT_UNSET
 # @DESCRIPTION:
 # Storage directory for git sources.
 #
@@ -118,8 +126,6 @@ fi
 # URIs are completely unsecured and their use (even if only as
 # a fallback) renders the ebuild completely vulnerable to MITM attacks.
 #
-# It can be overridden via env using ${PN}_LIVE_REPO variable.
-#
 # Can be a whitespace-separated list or an array.
 #
 # Example:
@@ -148,8 +154,6 @@ fi
 # @DESCRIPTION:
 # The branch name to check out. If unset, the upstream default (HEAD)
 # will be used.
-#
-# It can be overridden via env using ${PN}_LIVE_BRANCH variable.
 
 # @ECLASS-VARIABLE: EGIT_COMMIT
 # @DEFAULT_UNSET
@@ -158,8 +162,6 @@ fi
 # commit from the branch will be used. Note that if set to a commit
 # not on HEAD branch, EGIT_BRANCH needs to be set to a branch on which
 # the commit is available.
-#
-# It can be overridden via env using ${PN}_LIVE_COMMIT variable.
 
 # @ECLASS-VARIABLE: EGIT_COMMIT_DATE
 # @DEFAULT_UNSET
@@ -174,10 +176,9 @@ fi
 # (assuming that merges are done correctly). In other words, each merge
 # will be considered alike a single commit with date corresponding
 # to the merge commit date.
-#
-# It can be overridden via env using ${PN}_LIVE_COMMIT_DATE variable.
 
 # @ECLASS-VARIABLE: EGIT_CHECKOUT_DIR
+# @DEFAULT_UNSET
 # @DESCRIPTION:
 # The directory to check the git sources out to.
 #
@@ -229,19 +230,19 @@ _git-r3_env_setup() {
 			;;
 		single)
 			if [[ ${EGIT_CLONE_TYPE} == shallow ]]; then
-				einfo "git-r3: ebuild needs to be cloned in '\e[1msingle\e[22m' mode, adjusting"
+				einfo "git-r3: ebuild needs to be cloned in 'single' mode, adjusting"
 				EGIT_CLONE_TYPE=single
 			fi
 			;;
 		single+tags)
 			if [[ ${EGIT_CLONE_TYPE} == shallow || ${EGIT_CLONE_TYPE} == single ]]; then
-				einfo "git-r3: ebuild needs to be cloned in '\e[1msingle+tags\e[22m' mode, adjusting"
+				einfo "git-r3: ebuild needs to be cloned in 'single+tags' mode, adjusting"
 				EGIT_CLONE_TYPE=single+tags
 			fi
 			;;
 		mirror)
 			if [[ ${EGIT_CLONE_TYPE} != mirror ]]; then
-				einfo "git-r3: ebuild needs to be cloned in '\e[1mmirror\e[22m' mode, adjusting"
+				einfo "git-r3: ebuild needs to be cloned in 'mirror' mode, adjusting"
 				EGIT_CLONE_TYPE=mirror
 			fi
 			;;
@@ -258,6 +259,7 @@ _git-r3_env_setup() {
 	esc_pn=${PN//[-+]/_}
 	[[ ${esc_pn} == [0-9]* ]] && esc_pn=_${esc_pn}
 
+	# note: deprecated, use EGIT_OVERRIDE_* instead
 	livevar=${esc_pn}_LIVE_REPO
 	EGIT_REPO_URI=${!livevar-${EGIT_REPO_URI}}
 	[[ ${!livevar} ]] \
@@ -402,16 +404,22 @@ _git-r3_set_gitdir() {
 }
 
 # @FUNCTION: _git-r3_set_submodules
-# @USAGE: <file-contents>
+# @USAGE: <parent-path> <file-contents>
 # @INTERNAL
 # @DESCRIPTION:
 # Parse .gitmodules contents passed as <file-contents>
 # as in "$(cat .gitmodules)"). Composes a 'submodules' array that
 # contains in order (name, URL, path) for each submodule.
+#
+# <parent-path> specifies path to current submodule (empty if top repo),
+# and is used to support recursively specifying submodules.  The path
+# must include a trailing slash if it's not empty.
 _git-r3_set_submodules() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	local data=${1}
+	local parent_path=${1}
+	local data=${2}
+	[[ -z ${parent_path} || ${parent_path} == */ ]] || die
 
 	# ( name url path ... )
 	submodules=()
@@ -436,12 +444,14 @@ _git-r3_set_submodules() {
 					l_res=1
 				fi
 
-				[[ ${subname} == ${p} ]] && res=${l_res}
+				[[ ${parent_path}${subname} == ${p} ]] && res=${l_res}
 			done
 
 			if [[ ! ${res} ]]; then
-				einfo "Skipping submodule \e[1m${subname}\e[22m"
+				einfo "Skipping submodule ${parent_path}${subname}"
 				continue
+			else
+				einfo "Using submodule ${parent_path}${subname}"
 			fi
 		fi
 
@@ -547,7 +557,7 @@ _git-r3_is_local_repo() {
 # This default should be fine unless you are fetching multiple trees
 # from the same repository in the same ebuild.
 #
-# <commit-id> requests attempting to use repository state as of specific
+# <commit-date> requests attempting to use repository state as of specific
 # date. For more details, see EGIT_COMMIT_DATE.
 #
 # The fetch operation will affect the EGIT_STORE only. It will not touch
@@ -556,6 +566,9 @@ _git-r3_is_local_repo() {
 # recursively.
 git-r3_fetch() {
 	debug-print-function ${FUNCNAME} "$@"
+
+	# disable password prompts, https://bugs.gentoo.org/701276
+	local -x GIT_TERMINAL_PROMPT=0
 
 	# process repos first since we create repo_name from it
 	local repos
@@ -581,6 +594,8 @@ git-r3_fetch() {
 
 	local -x GIT_DIR
 	_git-r3_set_gitdir "${repos[0]}"
+
+	einfo "Repository id: ${GIT_DIR##*/}"
 
 	# prepend the local mirror if applicable
 	if [[ ${EGIT_MIRROR_URI} ]]; then
@@ -614,10 +629,11 @@ git-r3_fetch() {
 			COMMIT_DATE:commit_date
 		)
 
-		local localvar livevar live_warn=
+		local localvar livevar live_warn= override_vars=()
 		for localvar in "${varmap[@]}"; do
 			livevar=EGIT_OVERRIDE_${localvar%:*}_${override_name}
 			localvar=${localvar#*:}
+			override_vars+=( "${livevar}" )
 
 			if [[ -n ${!livevar} ]]; then
 				[[ ${localvar} == repos ]] && repos=()
@@ -629,6 +645,13 @@ git-r3_fetch() {
 
 		if [[ ${live_warn} ]]; then
 			ewarn "No support will be provided."
+		else
+			einfo "To override fetched repository properties, use:"
+			local x
+			for x in "${override_vars[@]}"; do
+				einfo "  ${x}"
+			done
+			einfo
 		fi
 	fi
 
@@ -646,35 +669,10 @@ git-r3_fetch() {
 	fi
 	for r in "${repos[@]}"; do
 		if [[ ! ${EVCS_OFFLINE} ]]; then
-			einfo "Fetching \e[1m${r}\e[22m ..."
+			einfo "Fetching ${r} ..."
 
 			local fetch_command=( git fetch "${r}" )
 			local clone_type=${EGIT_CLONE_TYPE}
-
-			if [[ ${r} == http://* || ${r} == https://* ]] &&
-					[[ ! ${EGIT_CURL_WARNED} ]]
-			then
-				case ${EAPI:-0} in
-					0|1|2|3|4)
-						ROOT=/ has_version 'dev-vcs/git[curl]';;
-					5|6)
-						has_version --host-root 'dev-vcs/git[curl]';;
-					*)
-						has_version -b 'dev-vcs/git[curl]';;
-				esac
-
-				if [[ ${?} -ne 0 ]]; then
-					ewarn "git-r3: fetching from HTTP(S) requested. In order to support HTTP(S),"
-					ewarn "dev-vcs/git needs to be built with USE=curl. Example solution:"
-					ewarn
-					ewarn "	echo dev-vcs/git curl >> /etc/portage/package.use"
-					ewarn "	emerge -1v dev-vcs/git"
-					ewarn
-					ewarn "HTTP(S) URIs will be skipped."
-				fi
-
-				EGIT_CURL_WARNED=1
-			fi
 
 			if [[ ${clone_type} == mirror ]]; then
 				fetch_command+=(
@@ -830,7 +828,7 @@ git-r3_fetch() {
 	# recursively fetch submodules
 	if git cat-file -e "${local_ref}":.gitmodules &>/dev/null; then
 		local submodules
-		_git-r3_set_submodules \
+		_git-r3_set_submodules "${_GIT_SUBMODULE_PATH}" \
 			"$(git cat-file -p "${local_ref}":.gitmodules || die)"
 
 		while [[ ${submodules[@]} ]]; do
@@ -852,7 +850,9 @@ git-r3_fetch() {
 				local subrepos
 				_git-r3_set_subrepos "${url}" "${repos[@]}"
 
-				git-r3_fetch "${subrepos[*]}" "${commit}" "${local_id}/${subname}"
+				_GIT_SUBMODULE_PATH=${_GIT_SUBMODULE_PATH}${path}/ \
+				git-r3_fetch "${subrepos[*]}" "${commit}" \
+					"${local_id}/${subname}" ""
 			fi
 
 			submodules=( "${submodules[@]:3}" ) # shift
@@ -905,7 +905,7 @@ git-r3_checkout() {
 	local -x GIT_DIR
 	_git-r3_set_gitdir "${repos[0]}"
 
-	einfo "Checking out \e[1m${repos[0]}\e[22m to \e[1m${out_dir}\e[22m ..."
+	einfo "Checking out ${repos[0]} to ${out_dir} ..."
 
 	if ! git cat-file -e refs/git-r3/"${local_id}"/__main__; then
 		die "Logic error: no local clone of ${repos[0]}. git-r3_fetch not used?"
@@ -988,7 +988,7 @@ git-r3_checkout() {
 	# recursively checkout submodules
 	if [[ -f ${out_dir}/.gitmodules && ! ${checkout_paths} ]]; then
 		local submodules
-		_git-r3_set_submodules \
+		_git-r3_set_submodules "${_GIT_SUBMODULE_PATH}" \
 			"$(<"${out_dir}"/.gitmodules)"
 
 		while [[ ${submodules[@]} ]]; do
@@ -1002,6 +1002,7 @@ git-r3_checkout() {
 				local subrepos
 				_git-r3_set_subrepos "${url}" "${repos[@]}"
 
+				_GIT_SUBMODULE_PATH=${_GIT_SUBMODULE_PATH}${path}/ \
 				git-r3_checkout "${subrepos[*]}" "${out_dir}/${path}" \
 					"${local_id}/${subname}"
 			fi
@@ -1055,7 +1056,7 @@ git-r3_peek_remote_ref() {
 
 	local r success
 	for r in "${repos[@]}"; do
-		einfo "Peeking \e[1m${remote_ref}\e[22m on \e[1m${r}\e[22m ..." >&2
+		einfo "Peeking ${remote_ref} on ${r} ..." >&2
 
 		local lookup_ref
 		if [[ ${remote_ref} == refs/* || ${remote_ref} == HEAD ]]
@@ -1111,9 +1112,9 @@ git-r3_pkg_needrebuild() {
 	[[ ${new_commit_id} && ${EGIT_VERSION} ]] || die "Lookup failed"
 
 	if [[ ${EGIT_VERSION} != ${new_commit_id} ]]; then
-		einfo "Update from \e[1m${EGIT_VERSION}\e[22m to \e[1m${new_commit_id}\e[22m"
+		einfo "Update from ${EGIT_VERSION} to ${new_commit_id}"
 	else
-		einfo "Local and remote at \e[1m${EGIT_VERSION}\e[22m"
+		einfo "Local and remote at ${EGIT_VERSION}"
 	fi
 
 	[[ ${EGIT_VERSION} != ${new_commit_id} ]]

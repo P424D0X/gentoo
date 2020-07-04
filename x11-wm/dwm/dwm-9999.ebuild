@@ -1,8 +1,8 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-inherit git-r3 toolchain-funcs
+EAPI=7
+inherit git-r3 savedconfig toolchain-funcs
 
 DESCRIPTION="a dynamic window manager for X11"
 HOMEPAGE="https://dwm.suckless.org/"
@@ -21,26 +21,18 @@ RDEPEND="
 "
 DEPEND="
 	${RDEPEND}
-	xinerama? ( x11-proto/xineramaproto )
+	xinerama? ( x11-base/xorg-proto )
 "
 
 src_prepare() {
 	default
 
 	sed -i \
-		-e "s/CFLAGS = -std=c99 -pedantic -Wall -Os/CFLAGS += -std=c99 -pedantic -Wall/" \
-		-e "/^LDFLAGS/{s|=|+=|g;s|-s ||g}" \
-		-e "s/#XINERAMALIBS =/XINERAMALIBS ?=/" \
-		-e "s/#XINERAMAFLAGS =/XINERAMAFLAGS ?=/" \
-		-e "s@/usr/X11R6/include@${EPREFIX}/usr/include/X11@" \
-		-e "s@/usr/X11R6/lib@${EPREFIX}/usr/lib@" \
-		-e "s@-I/usr/include@@" -e "s@-L/usr/lib@@" \
-		-e "s/\/freetype2/\ -I\/usr\/include\/freetype2/" \
+		-e "s/ -Os / /" \
+		-e "/^\(LDFLAGS\|CFLAGS\|CPPFLAGS\)/{s| = | += |g;s|-s ||g}" \
 		config.mk || die
-	sed -i \
-		-e '/@echo CC/d' \
-		-e 's|@${CC}|$(CC)|g' \
-		Makefile || die
+
+	restore_config config.h
 }
 
 src_compile() {
@@ -61,4 +53,6 @@ src_install() {
 	doins "${FILESDIR}"/dwm.desktop
 
 	dodoc README
+
+	save_config config.h
 }

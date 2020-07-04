@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -17,7 +17,7 @@ SRC_URI="http://icculus.org/betas/ssam/${MY_PN}-${MY_PV}.sh.bin"
 LICENSE="LOKI-EULA"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~x86"
-RESTRICT="strip"
+RESTRICT="bindist mirror strip"
 IUSE="alsa"
 
 DEPEND=">=app-arch/unshield-0.6"
@@ -77,7 +77,7 @@ src_install() {
 
 	einfo "Copying from ${CDROM_ROOT}"
 	insinto "${dir}"
-	doins -r "${CDROM_ROOT}"/Install/* || die "doins CD failed"
+	doins -r "${CDROM_ROOT}"/Install/*
 
 	# Correct paths of copied resource files
 	mv "${D}/${dir}"/Locales/eng/Controls/* "${D}/${dir}"/Controls/ || die "Failed to move file"
@@ -105,8 +105,7 @@ src_install() {
 	mv Levels/Mods/Warped/ Mods/ || die "Failed to move file"
 	rmdir Levels/Mods/ || die "Failed to remove dir"
 
-	doins -r Bin Data Levels Mods *.txt README* \
-		|| die "doins main failed"
+	doins -r Bin Data Levels Mods *.txt README*
 
 	# Install bins last to ensure they are marked executable
 	exeinto "${dir}"

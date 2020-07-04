@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -16,7 +16,7 @@ SRC_URI="mirror://debian/pool/main/x/xosd/${PN}_${MY_PV}.orig.tar.gz
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-fbsd"
+KEYWORDS="~alpha amd64 ~arm hppa ~ia64 ppc ppc64 sparc x86"
 IUSE="static-libs xinerama"
 
 RDEPEND="x11-libs/libX11
@@ -24,10 +24,8 @@ RDEPEND="x11-libs/libX11
 	x11-libs/libXt
 	media-fonts/font-misc-misc"
 DEPEND="${RDEPEND}
-	xinerama? ( x11-proto/xineramaproto )
-	x11-proto/xextproto
-	x11-proto/xproto
-	virtual/pkgconfig"
+	virtual/pkgconfig
+	x11-base/xorg-proto"
 
 DOCS=(
 	AUTHORS ChangeLog NEWS README TODO

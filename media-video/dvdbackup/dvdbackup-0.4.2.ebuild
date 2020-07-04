@@ -1,7 +1,7 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=4
+EAPI=7
 
 DESCRIPTION="Backup content from DVD to hard disk"
 HOMEPAGE="http://dvdbackup.sourceforge.net/"
@@ -16,12 +16,10 @@ RDEPEND=">=media-libs/libdvdread-4.2.0_pre
 	nls? ( virtual/libintl )"
 DEPEND="${RDEPEND}
 	nls? ( sys-devel/gettext )"
-
-DOCS=( AUTHORS ChangeLog NEWS README )
+PATCHES=( "${FILESDIR}/libdvdread-6.1.0.diff" )
 
 src_configure() {
 	econf \
 		$(use_enable nls) \
-		--disable-rpath \
-		--docdir=/usr/share/doc/${PF}
+		--disable-rpath
 }

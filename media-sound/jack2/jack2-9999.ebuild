@@ -1,55 +1,58 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
+EAPI=6
 
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python3_{6,7,8} )
 PYTHON_REQ_USE="threads(+)"
 inherit python-single-r1 waf-utils multilib-minimal
 
 DESCRIPTION="Jackdmp jack implemention for multi-processor machine"
-HOMEPAGE="http://jackaudio.org/"
+HOMEPAGE="https://jackaudio.org/"
 
 if [[ "${PV}" = "9999" ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/jackaudio/${PN}.git"
-	KEYWORDS=""
 else
 	MY_PV="${PV/_rc/-RC}"
 	MY_P="${PN}-${MY_PV}"
 	S="${WORKDIR}/${MY_P}"
-	SRC_URI="https://github.com/jackaudio/jack2/releases/download/v${MY_PV}/${MY_P}.tar.gz"
+	SRC_URI="SRC_URI="https://github.com/jackaudio/jack2/releases/download/v${MY_PV}/v${MY_PV}.tar.gz -> ${P}.tar.gz""
 	KEYWORDS="~amd64 ~ppc ~x86"
 fi
 
 LICENSE="GPL-2"
 SLOT="2"
-IUSE="alsa celt dbus doc opus pam +classic sndfile libsamplerate readline"
+IUSE="alsa +classic dbus doc ieee1394 libsamplerate metadata opus pam readline sndfile"
 
-REQUIRED_USE="
-	${PYTHON_REQUIRED_USE}
+REQUIRED_USE="${PYTHON_REQUIRED_USE}
 	|| ( classic dbus )"
 
-CDEPEND="media-libs/libsamplerate
+COMMON_DEPEND="${PYTHON_DEPS}
+	media-libs/libsamplerate
 	media-libs/libsndfile
 	sys-libs/readline:0=
-	${PYTHON_DEPS}
 	alsa? ( media-libs/alsa-lib[${MULTILIB_USEDEP}] )
-	celt? ( media-libs/celt:0[${MULTILIB_USEDEP}] )
 	dbus? (
 		dev-libs/expat[${MULTILIB_USEDEP}]
 		sys-apps/dbus[${MULTILIB_USEDEP}]
 	)
+	ieee1394? ( media-libs/libffado:=[${MULTILIB_USEDEP}] )
+	metadata? ( sys-libs/db:* )
 	opus? ( media-libs/opus[custom-modes,${MULTILIB_USEDEP}] )"
-DEPEND="${CDEPEND}
+DEPEND="${COMMON_DEPEND}
 	virtual/pkgconfig
 	doc? ( app-doc/doxygen )"
-RDEPEND="${CDEPEND}
-	dbus? ( dev-python/dbus-python[${PYTHON_USEDEP}] )
+RDEPEND="${COMMON_DEPEND}
+	dbus? (
+		$(python_gen_cond_dep '
+			dev-python/dbus-python[${PYTHON_MULTI_USEDEP}]
+		')
+	)
 	pam? ( sys-auth/realtime-base )
 	!media-sound/jack-audio-connection-kit:0"
 
-DOCS=( ChangeLog README README_NETJACK2 TODO )
+DOCS=( AUTHORS.rst ChangeLog.rst README.rst README_NETJACK2 )
 
 src_prepare() {
 	default
@@ -62,10 +65,10 @@ multilib_src_configure() {
 		$(usex dbus --dbus "")
 		$(usex classic --classic "")
 		--alsa=$(usex alsa yes no)
-		--celt=$(usex celt yes no)
+		--celt=no
+		--db=$(usex metadata yes no)
 		--doxygen=$(multilib_native_usex doc yes no)
-		--firewire=no
-		--freebob=no
+		--firewire=$(usex ieee1394 yes no)
 		--iio=no
 		--opus=$(usex opus yes no)
 		--portaudio=no

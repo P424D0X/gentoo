@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -11,7 +11,7 @@ SRC_URI="https://github.com/mongodb/${PN}/releases/download/${PV}/${P}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~hppa ~x86"
+KEYWORDS="~amd64 ~hppa ~s390 ~x86"
 IUSE="debug examples libressl sasl ssl static-libs test"
 
 RDEPEND=">=dev-libs/libbson-1.6.2
@@ -24,6 +24,10 @@ DEPEND="${RDEPEND}
 	test? ( dev-db/mongodb )"
 
 DOCS=( NEWS README.rst )
+
+# No tests on x86 because tests require dev-db/mongodb which don't support
+# x86 anymore (bug #645994)
+RESTRICT="!test? ( test ) x86? ( test )"
 
 src_prepare() {
 	rm -r src/libbson || die
@@ -38,11 +42,11 @@ src_prepare() {
 }
 
 src_configure() {
-	econf --with-libbson=system \
+	econf \
+		--with-libbson=system \
 		--disable-optimizations \
 		--disable-shm-counters \
 		--disable-examples \
-		--docdir="${EPREFIX}/usr/share/doc/${P}" \
 		$(use_enable sasl) \
 		$(use_enable ssl ssl $(usex libressl libressl openssl)) \
 		$(use_enable debug) \

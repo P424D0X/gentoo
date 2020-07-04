@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -6,7 +6,7 @@ inherit toolchain-funcs
 
 DESCRIPTION="Get out of my way, Window Manager!"
 HOMEPAGE="https://github.com/seanpringle/goomwwm"
-SRC_URI="${HOMEPAGE}/archive/${PV}.tar.gz -> ${P}-github.tar.gz"
+SRC_URI="https://github.com/seanpringle/goomwwm/archive/${PV}.tar.gz -> ${P}-github.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
@@ -21,8 +21,7 @@ RDEPEND="
 DEPEND="
 	${RDEPEND}
 	virtual/pkgconfig
-	x11-proto/xineramaproto
-	x11-proto/xproto
+	x11-base/xorg-proto
 "
 
 src_prepare() {

@@ -17,7 +17,7 @@ KEYWORDS="~amd64 ~ppc ~x86 ~amd64-linux ~x86-linux ~ppc-macos"
 RDEPEND="x11-libs/libXaw
 	!!dev-lang/elixir"
 DEPEND="${RDEPEND}
-	x11-proto/xproto"
+	x11-base/xorg-proto"
 
 S="${WORKDIR}/${P}/src"
 
@@ -43,7 +43,7 @@ src_install() {
 	mv exe/font* fonts || die "Font move failed."
 	mv exe/factor exe/factor-${PN} || die "Renaming factor failed."
 
-	dolib.so exe/*so && rm exe/*so || die
+	dolib.so exe/*so && rm exe/*so
 	dobin exe/*
 
 	dodoc "${FILESDIR}"/README.Gentoo

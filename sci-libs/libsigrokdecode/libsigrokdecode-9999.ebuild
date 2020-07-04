@@ -1,11 +1,11 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
 
-PYTHON_COMPAT=( python3_{4,5,6} )
+PYTHON_COMPAT=( python3_{6,7} )
 
-inherit eutils python-single-r1
+inherit eutils ltprune python-single-r1
 
 if [[ ${PV} == "9999" ]]; then
 	EGIT_REPO_URI="git://sigrok.org/${PN}"
@@ -23,7 +23,7 @@ SLOT="0/9999"
 IUSE="static-libs"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
-RDEPEND=">=dev-libs/glib-2.28.0
+RDEPEND=">=dev-libs/glib-2.34.0
 	${PYTHON_DEPS}"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig"

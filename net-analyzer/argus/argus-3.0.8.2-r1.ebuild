@@ -1,16 +1,16 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
 inherit autotools eutils user
 
 DESCRIPTION="network Audit Record Generation and Utilization System"
-HOMEPAGE="http://www.qosient.com/argus/"
-SRC_URI="${HOMEPAGE}dev/${P/_rc/.rc.}.tar.gz"
+HOMEPAGE="https://www.qosient.com/argus/"
+SRC_URI="https://www.qosient.com/argus/dev/${P/_rc/.rc.}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64 ~ppc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos"
+KEYWORDS="amd64 ppc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos"
 IUSE="debug +libtirpc sasl tcpd"
 
 RDEPEND="
@@ -62,7 +62,7 @@ src_compile() {
 	emake CCOPT="${CFLAGS} ${LDFLAGS}"
 }
 
-src_install () {
+src_install() {
 	doman man/man5/*.5 man/man8/*.8
 
 	dosbin bin/argus{,bug}

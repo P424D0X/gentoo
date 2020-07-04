@@ -10,14 +10,13 @@ SRC_URI="mirror://gentoo/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 ppc x86 ~x86-fbsd"
+KEYWORDS="amd64 ppc x86"
 IUSE=""
 
 RDEPEND="x11-libs/libX11
 	x11-libs/libXext"
 DEPEND="${RDEPEND}
-	x11-proto/xextproto
-	x11-proto/xproto"
+	x11-base/xorg-proto"
 
 PATCHES=(
 	"${FILESDIR}"/${P}-gcc43.patch

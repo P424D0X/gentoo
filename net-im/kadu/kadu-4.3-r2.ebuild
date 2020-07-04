@@ -1,9 +1,9 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
 
-inherit cmake-utils flag-o-matic gnome2-utils
+inherit cmake-utils flag-o-matic gnome2-utils virtualx
 
 MY_P="${P/_/-}"
 
@@ -12,7 +12,7 @@ HOMEPAGE="http://www.kadu.net"
 SRC_URI="http://download.kadu.im/stable/${P}.tar.bz2"
 
 LICENSE="GPL-2"
-KEYWORDS="amd64 ~x86"
+KEYWORDS="amd64 x86"
 SLOT="0"
 IUSE="+gadu mpd otr sdk speech spell xmpp"
 REQUIRED_USE="
@@ -40,6 +40,7 @@ COMMON_DEPEND="
 	dev-qt/qtxml:5
 	dev-qt/qtxmlpatterns:5
 	x11-libs/libX11
+	x11-libs/libXfixes
 	x11-libs/libXext
 	x11-libs/libXScrnSaver
 	gadu? ( >=net-libs/libgadu-1.12.2[threads] )
@@ -48,9 +49,9 @@ COMMON_DEPEND="
 		>=dev-libs/libgcrypt-1.2.2:0
 		>=net-libs/libotr-4.1.0
 	)
-	spell? ( app-text/enchant )
+	spell? ( app-text/enchant:0 )
 	xmpp? (
-		net-dns/libidn
+		net-dns/libidn:*
 		>=net-libs/qxmpp-0.9.3-r1
 		sys-libs/zlib
 	)
@@ -102,6 +103,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-4.3-do-not-force-ccache.patch"
 	"${FILESDIR}/${PN}-4.3-fix-plugins-rpath.patch"
 	"${FILESDIR}/${PN}-4.3-gcc7.patch"
+	"${FILESDIR}/${PN}-4.3-find-x11-with-newer-cmake-modules.patch"
 )
 
 src_configure() {
@@ -131,6 +133,10 @@ src_configure() {
 	unset PLUGINS
 
 	cmake-utils_src_configure
+}
+
+src_test() {
+	virtx cmake-utils_src_test
 }
 
 pkg_postinst() {

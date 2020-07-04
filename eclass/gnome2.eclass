@@ -1,9 +1,10 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: gnome2.eclass
 # @MAINTAINER:
 # gnome@gentoo.org
+# @SUPPORTED_EAPIS: 4 5 6
 # @BLURB: Provides phases for Gnome/Gtk+ based packages.
 # @DESCRIPTION:
 # Exports portage base functions used by ebuilds written for packages using the
@@ -16,7 +17,7 @@
 GNOME2_EAUTORECONF=${GNOME2_EAUTORECONF:-""}
 
 [[ ${GNOME2_EAUTORECONF} == 'yes' ]] && inherit autotools
-inherit eutils libtool gnome.org gnome2-utils xdg
+inherit eutils libtool ltprune gnome.org gnome2-utils xdg
 
 case "${EAPI:-0}" in
 	4|5)
@@ -315,7 +316,6 @@ gnome2_src_install() {
 gnome2_pkg_preinst() {
 	xdg_pkg_preinst
 	gnome2_gconf_savelist
-	gnome2_icon_savelist
 	gnome2_schemas_savelist
 	gnome2_scrollkeeper_savelist
 	gnome2_gdk_pixbuf_savelist
@@ -337,9 +337,6 @@ gnome2_pkg_preinst() {
 gnome2_pkg_postinst() {
 	xdg_pkg_postinst
 	gnome2_gconf_install
-	if [[ -n ${GNOME2_ECLASS_ICONS} ]]; then
-		gnome2_icon_cache_update
-	fi
 	if [[ -n ${GNOME2_ECLASS_GLIB_SCHEMAS} ]]; then
 		gnome2_schemas_update
 	fi
@@ -361,9 +358,6 @@ gnome2_pkg_postinst() {
 # Handle scrollkeeper, GSettings, Icons, desktop and mime database updates.
 gnome2_pkg_postrm() {
 	xdg_pkg_postrm
-	if [[ -n ${GNOME2_ECLASS_ICONS} ]]; then
-		gnome2_icon_cache_update
-	fi
 	if [[ -n ${GNOME2_ECLASS_GLIB_SCHEMAS} ]]; then
 		gnome2_schemas_update
 	fi

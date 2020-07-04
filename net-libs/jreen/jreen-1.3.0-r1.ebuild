@@ -1,7 +1,7 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 if [[ ${PV} != *9999* ]]; then
 	SRC_URI="https://github.com/euroelessar/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
@@ -11,7 +11,7 @@ else
 	EGIT_REPO_URI="https://github.com/euroelessar/${PN}.git"
 fi
 
-inherit cmake-utils ${GIT_ECLASS}
+inherit cmake ${GIT_ECLASS}
 
 DESCRIPTION="Qt XMPP library"
 HOMEPAGE="https://github.com/euroelessar/jreen"
@@ -29,11 +29,9 @@ DEPEND="
 "
 RDEPEND="${DEPEND}"
 
-DOCS=( AUTHORS ChangeLog README.md )
-
 src_configure() {
 	local mycmakeargs=(
 		-DJREEN_FORCE_QT4=OFF
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }

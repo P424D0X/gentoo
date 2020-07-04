@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -16,13 +16,14 @@ SRC_URI="http://cvs2svn.tigris.org/files/documents/1462/${FILEVER}/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 ia64 ppc x86 ~amd64-linux ~x86-linux ~ppc-macos"
+KEYWORDS="~alpha amd64 ~ia64 ppc x86 ~amd64-linux ~x86-linux ~ppc-macos"
 IUSE="bazaar git test"
+RESTRICT="!test? ( test )"
 
 DEPEND=">=dev-vcs/subversion-1.0.9"
 RDEPEND="${DEPEND}
-	bazaar? ( >=dev-vcs/bzr-1.13[${PYTHON_USEDEP}] )
-	git? ( >=dev-vcs/git-1.5.4.4[${PYTHON_USEDEP}] )
+	bazaar? ( >=dev-vcs/bzr-1.13 )
+	git? ( >=dev-vcs/git-1.5.4.4 )
 	dev-vcs/rcs"
 
 pkg_setup() {

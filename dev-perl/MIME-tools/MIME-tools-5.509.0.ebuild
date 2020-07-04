@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -11,8 +11,9 @@ inherit perl-module
 DESCRIPTION="A Perl module for parsing and creating MIME entities"
 
 SLOT="0"
-KEYWORDS="alpha amd64 ~arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos"
+KEYWORDS="~alpha amd64 ~arm ~arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos"
 IUSE="test"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	>=virtual/perl-File-Path-1
@@ -31,7 +32,11 @@ DEPEND="${RDEPEND}
 # tests fail when done in parallel
 DIST_TEST="do"
 
-src_test() {
-	perl_rm_files t/02-kwalitee.t t/02-pod-coverage.t t/02-pod.t
-	perl-module_src_test
-}
+PERL_RM_FILES=(
+	# Author tests
+	t/02-kwalitee.t
+	t/02-pod.t
+	t/02-pod-coverage.t
+	# Fails under FEATURES="network-sandbox"
+	t/Smtpsend.t
+)

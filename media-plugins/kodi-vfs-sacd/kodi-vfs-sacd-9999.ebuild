@@ -1,24 +1,26 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit cmake-utils kodi-addon
+inherit cmake kodi-addon
 
 DESCRIPTION="SACD VFS addon for Kodi"
-HOMEPAGE="https://github.com/notspiff/vfs.sacd"
+HOMEPAGE="https://github.com/xbmc/vfs.sacd"
 SRC_URI=""
 
 case ${PV} in
 9999)
 	SRC_URI=""
-	EGIT_REPO_URI="https://github.com/notspiff/vfs.sacd.git"
+	EGIT_REPO_URI="https://github.com/xbmc/vfs.sacd.git"
+	EGIT_BRANCH="Matrix"
 	inherit git-r3
 	;;
 *)
+	CODENAME="Leia"
 	KEYWORDS="~amd64 ~x86"
-	SRC_URI="https://github.com/notspiff/vfs.sacd/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-	S="${WORKDIR}/vfs.sacd-${PV}"
+	SRC_URI="https://github.com/xbmc/vfs.sacd/archive/${PV}-${CODENAME}.tar.gz -> ${P}.tar.gz"
+	S="${WORKDIR}/vfs.sacd-${PV}-${CODENAME}"
 	;;
 esac
 
@@ -27,7 +29,8 @@ SLOT="0"
 IUSE=""
 
 DEPEND="
-	=dev-libs/libplatform-2*
-	=media-libs/kodi-platform-9999
-	=media-tv/kodi-9999
+	~media-libs/kodi-platform-9999
+	~media-tv/kodi-9999
+	virtual/libiconv
 	"
+RDEPEND="${DEPEND}"

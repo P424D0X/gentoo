@@ -1,7 +1,7 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit toolchain-funcs
 
@@ -14,18 +14,20 @@ SRC_URI="http://ludovic.rousseau.free.fr/softwares/ifd-GemPC/${P}.tar.gz"
 IUSE=""
 RDEPEND=">=sys-apps/pcsc-lite-1.2.9_beta7
 	virtual/libusb:0"
-DEPEND="${RDEPEND}
-	virtual/pkgconfig"
+DEPEND="${RDEPEND}"
+BDEPEND="virtual/pkgconfig"
 
 DOCS=(
-	README  README.410  README.430
+	README
+	README.410
+	README.430
 )
 
 src_compile() {
 	emake CC="$(tc-getCC)"
 }
 
-src_install () {
+src_install() {
 	emake CC="$(tc-getCC)" DESTDIR="${D}" install
 	einstalldocs
 

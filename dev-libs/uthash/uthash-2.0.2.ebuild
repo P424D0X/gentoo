@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -11,8 +11,9 @@ SRC_URI="https://github.com/troydhanson/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.
 
 LICENSE="BSD-1"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~sparc ~x86"
+KEYWORDS="amd64 ~arm ppc ~ppc64 sparc x86"
 IUSE="test"
+RESTRICT="!test? ( test )"
 
 DEPEND="test? ( dev-lang/perl )"
 RDEPEND=""

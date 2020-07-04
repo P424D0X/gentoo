@@ -1,12 +1,12 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit flag-o-matic
+inherit flag-o-matic ltprune toolchain-funcs
 
 DESCRIPTION="Object-oriented Scientific Computing Library"
-HOMEPAGE="http://web.utk.edu/~asteine1/o2scl"
+HOMEPAGE="https://web.utk.edu/~asteine1/o2scl/"
 SRC_URI="https://github.com/awsteiner/${PN}/releases/download/v${PV}/${P}.tar.gz"
 
 LICENSE="GPL-3"

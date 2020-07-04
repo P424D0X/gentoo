@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -51,13 +51,15 @@ SRC_URI="https://github.com/arduino/Arduino/archive/${PV}.tar.gz -> ${P}.tar.gz
 
 LICENSE="GPL-2 LGPL-2.1 CC-BY-SA-3.0"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 
 # bincheck RESTRICT is needed because firmware that ships with arduino contains code that makes
 # scanelf bark. It's also why we need a separate package for arduino-listserialportsc because if
 # we install it in the context of this package, we will get QA notices telling us we're doing a
 # bad thing.
-RESTRICT="strip binchecks"
+RESTRICT="strip"
+QA_PREBUILT="usr/share/arduino/hardware/arduino/avr/firmwares/*
+	usr/share/arduino/libraries/WiFi/extras/*"
 IUSE="doc"
 
 CDEPEND="dev-embedded/arduino-builder"
@@ -68,6 +70,7 @@ RDEPEND="${CDEPEND}
 	>=virtual/jre-1.8"
 
 DEPEND="${CDEPEND}
+	app-arch/unzip
 	>=virtual/jdk-1.8"
 
 EANT_BUILD_TARGET="build"
@@ -131,9 +134,9 @@ src_install() {
 
 	# In upstream's build process, we copy these fiels below from the bundled arduino-builder.
 	# Here we do the same thing, but from the system arduino-builder.
-	dosym "${EPREFIX}/usr/share/arduino-builder/platform.txt" "${SHARE}/hardware/platform.txt"
-	dosym "${EPREFIX}/usr/share/arduino-builder/platform.keys.rewrite.txt" "${SHARE}/hardware/platform.keys.rewrite.txt"
-	dosym "${EPREFIX}/usr/bin/arduino-builder" "${SHARE}/arduino-builder"
+	dosym "../../arduino-builder/platform.txt" "${SHARE}/hardware/platform.txt"
+	dosym "../../arduino-builder/platform.keys.rewrite.txt" "${SHARE}/hardware/platform.keys.rewrite.txt"
+	dosym "../../bin/arduino-builder" "${SHARE}/arduino-builder"
 
 	# hardware/tools/avr needs to exist or arduino-builder will
 	# complain about missing required -tools arg
@@ -144,7 +147,7 @@ src_install() {
 		einstalldocs
 
 		# arduino expects its doc in its "main" directory. symlink it.
-		dosym "${EPREFIX}/usr/share/doc/${PF}/html/reference" "${SHARE}/reference"
+		dosym "../doc/${PF}/html/reference" "${SHARE}/reference"
 	fi
 
 	# Install menu and icons

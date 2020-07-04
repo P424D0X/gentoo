@@ -1,9 +1,9 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit cmake-utils kodi-addon
+inherit cmake kodi-addon
 
 DESCRIPTION="Kodi's VuPlus client addon"
 HOMEPAGE="https://github.com/kodi-pvr/pvr.vuplus"
@@ -16,7 +16,7 @@ case ${PV} in
 	inherit git-r3
 	;;
 *)
-	CODENAME="Krypton"
+	CODENAME="Leia"
 	KEYWORDS="~amd64 ~x86"
 	SRC_URI="https://github.com/kodi-pvr/pvr.vuplus/archive/${PV}-${CODENAME}.tar.gz -> ${P}.tar.gz"
 	S="${WORKDIR}/pvr.vuplus-${PV}-${CODENAME}"
@@ -28,11 +28,18 @@ SLOT="0"
 IUSE=""
 
 DEPEND="
-	=media-tv/kodi-9999
-	=media-libs/kodi-platform-9999
+	~media-tv/kodi-9999
+	~media-libs/kodi-platform-9999
+	=dev-libs/libplatform-2*
 	dev-libs/tinyxml
+	dev-cpp/nlohmann_json
 	"
 
 RDEPEND="
 	${DEPEND}
 	"
+
+src_prepare() {
+	[ -d depends ] && rm -rf depends || die
+	cmake_src_prepare
+}

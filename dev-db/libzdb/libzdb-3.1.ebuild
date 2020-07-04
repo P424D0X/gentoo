@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -20,7 +20,7 @@ RESTRICT=test
 RDEPEND="mysql? ( virtual/mysql )
 	postgres? ( dev-db/postgresql )
 	sqlite? ( >=dev-db/sqlite-3.7:3[unlock-notify(+)] )
-	ssl? ( dev-libs/openssl )"
+	ssl? ( dev-libs/openssl:0= )"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	doc? ( app-doc/doxygen )"
@@ -33,11 +33,8 @@ src_configure() {
 	## TODO: check what --enable-optimized actually does
 	## TODO: find someone with oracle db to add oci8 support
 	myconf=""
-	if  [[ $(gcc-version) < 4.1 ]];then
-		myconf="${myconf} --disable-protected"
-	else
-		myconf="${myconf} --enable-protected"
-	fi
+	# enable default hidden visibility
+	myconf="${myconf} --enable-protected"
 
 	if use sqlite; then
 		myconf="${myconf} --with-sqlite=${EPREFIX}/usr/ --enable-sqliteunlock"

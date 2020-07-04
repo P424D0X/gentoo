@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-	<maintainer type="person">
-		<email>eva@gentoo.org</email>
-	</maintainer>
 	<maintainer type="project">
 		<email>gnome@gentoo.org</email>
 		<name>Gentoo GNOME Desktop</name>
@@ -34,6 +31,8 @@
 		<flag name="reiserfs">Include ReiserFS support
 		(<pkg>sys-fs/reiserfsprogs</pkg>)</flag>
 		<flag name="udf">Include UDF support (<pkg>sys-fs/udftools</pkg>)</flag>
+		<flag name="wayland">Enable interim workaround to allow running GParted under
+		Wayland by granting permission to the X11 display using <pkg>x11-apps/xhost</pkg>.</flag>
 		<flag name="xfs">Include XFS support
 		(<pkg>sys-fs/xfsprogs</pkg>, <pkg>sys-fs/xfsdump</pkg>)</flag>
 	</use>

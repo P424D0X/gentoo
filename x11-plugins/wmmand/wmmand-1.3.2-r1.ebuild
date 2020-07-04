@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -19,8 +19,7 @@ RDEPEND="x11-libs/libX11
 	x11-libs/libXext
 	x11-libs/libXpm"
 DEPEND="${RDEPEND}
-	x11-proto/xextproto
-	x11-proto/xproto"
+	x11-base/xorg-proto"
 
 S=${WORKDIR}/${MY_P}/wmMand
 
@@ -29,6 +28,9 @@ DOCS=( ../{BUGS,changelog,TODO} )
 src_prepare() {
 	default
 	gunzip wmMand.6.gz || die
+
+	pushd "${WORKDIR}"/${MY_P} || die
+	eapply "${FILESDIR}"/${P}-gcc-10.patch
 }
 
 src_compile() {

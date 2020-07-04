@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
@@ -14,7 +14,7 @@ CCTOOLS=cctools-750
 LP64PATCHES=binutils-apple-LP64-patches-1
 
 DESCRIPTION="Darwin assembler as(1) and static linker ld(1), Xcode Tools 3.2"
-HOMEPAGE="http://www.opensource.apple.com/darwinsource/"
+HOMEPAGE="http://www.opensource.apple.com/"
 SRC_URI="https://opensource.apple.com/tarballs/ld64/${LD64}.tar.gz
 	https://opensource.apple.com/tarballs/cctools/${CCTOOLS}.tar.gz
 	https://dev.gentoo.org/~grobian/distfiles/${LP64PATCHES}.tar.bz2
@@ -84,7 +84,6 @@ src_prepare() {
 	epatch "${WORKDIR}"/${PN}-3.1.1-nmedit.patch
 	epatch "${WORKDIR}"/${PN}-3.1.1-no-headers.patch
 	epatch "${WORKDIR}"/${PN}-3.1.1-no-oss-dir.patch
-	epatch "${WORKDIR}"/${P}-armv7-defines.patch
 
 	cd "${S}"/${LD64}
 	epatch "${WORKDIR}"/${PN}-3.1.1-testsuite.patch
@@ -121,6 +120,12 @@ src_configure() {
 	else
 		BINPATH=/usr/${CTARGET}/binutils-bin/${PV}
 	fi
+
+	if tc-is-gcc && [[ $(gcc-fullversion) != 4.2.1 ]] ; then
+		# force gcc-apple
+		CC=${CTARGET}-gcc-4.2.1
+		CXX=${CTARGET}-g++-4.2.1
+	fi
 }
 
 compile_ld64() {
@@ -129,7 +134,7 @@ compile_ld64() {
 	# but not on tiger.
 	[[ ${CHOST} == *-apple-darwin8 ]] && \
 		append-flags -isystem "${S}"/${CCTOOLS}/include/
-	emake || die "emake failed for ld64"
+	emake
 	use test && emake build_test
 }
 
@@ -141,13 +146,12 @@ compile_cctools() {
 		EFITOOLS= \
 		COMMON_SUBDIRS='libstuff ar misc otool' \
 		SUBDIRS_32= \
-		RC_CFLAGS="${CFLAGS}" OFLAG="${CFLAGS}" \
-		|| die "emake failed for the cctools"
+		RC_CFLAGS="${CFLAGS}" OFLAG="${CFLAGS}"
+
 	cd "${S}"/${CCTOOLS}/as
 	emake \
 		BUILD_OBSOLETE_ARCH= \
-		RC_CFLAGS="-DASLIBEXECDIR=\"\\\"${EPREFIX}${LIBPATH}/\\\"\" ${CFLAGS}" \
-		|| die "emake failed for as"
+		RC_CFLAGS="-DASLIBEXECDIR=\"\\\"${EPREFIX}${LIBPATH}/\\\"\" ${CFLAGS}"
 }
 
 src_compile() {

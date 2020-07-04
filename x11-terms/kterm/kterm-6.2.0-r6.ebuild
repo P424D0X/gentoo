@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
@@ -37,7 +37,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-underline.patch
 )
 
-src_prepare(){
+src_prepare() {
 	default
 	use Xaw3d && eapply "${FILESDIR}"/${PN}-Xaw3d.patch
 }
@@ -46,15 +46,16 @@ src_configure() {
 	xmkmf -a || die
 }
 
-src_compile(){
+src_compile() {
 	emake \
 		CC="$(tc-getCC)" \
 		CDEBUGFLAGS="${CFLAGS}" \
-		LOCAL_LDFLAGS="${LDFLAGS} $("$(tc-getPKG_CONFIG)" --libs ncurses)" \
+		LOCAL_LDFLAGS="${LDFLAGS}" \
+		TERMCAPLIB="$("$(tc-getPKG_CONFIG)" --libs ncurses)" \
 		XAPPLOADDIR="${EPREFIX}/usr/share/X11/app-defaults"
 }
 
-src_install(){
+src_install() {
 	emake \
 		BINDIR="${EPREFIX}/usr/bin" \
 		XAPPLOADDIR="${EPREFIX}/usr/share/X11/app-defaults" \
@@ -64,9 +65,8 @@ src_install(){
 
 	# install man pages
 	newman ${PN}.man ${PN}.1
-	insinto /usr/share/man/ja/man1
 	iconv -f ISO-2022-JP -t UTF-8 ${PN}.jman > ${PN}.ja.1
-	newins ${PN}.ja.1 ${PN}.1
+	doman ${PN}.ja.1
 
 	# Remove link to avoid collision
 	rm -f "${ED}"/usr/lib/X11/app-defaults

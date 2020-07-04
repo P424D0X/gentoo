@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="4"
@@ -49,13 +49,13 @@ src_configure() {
 }
 
 src_install() {
-	emake BUILDROOT="${D}" INST_DIR="${ED}/usr" install || die
-	dodoc docs/README CHANGELOG || die
-	dohtml docs/mauidocs.html || die
-	newinitd "${FILESDIR}/${PN}.initd" ${PN} || die
+	emake BUILDROOT="${D}" INST_DIR="${ED}/usr" install
+	dodoc docs/README CHANGELOG
+	dohtml docs/mauidocs.html
+	newinitd "${FILESDIR}/${PN}.initd" ${PN}
 }
 
 pkg_nofetch() {
 	einfo "Please visit ${HOMEPAGE}, obtain the file"
-	einfo "${P}.tar.gz and put it in ${DISTDIR}"
+	einfo "${P}.tar.gz and put it in your DISTDIR directory."
 }

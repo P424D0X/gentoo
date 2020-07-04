@@ -1,7 +1,7 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 
 inherit vdr-plugin-2 ssl-cert
 
@@ -10,7 +10,7 @@ HOMEPAGE="http://live.vdr-developer.org"
 SRC_URI="mirror://gentoo/${P}.tar.bz2
 		https://dev.gentoo.org/~hd_brummy/distfiles/${P}.tar.bz2"
 
-LICENSE="GPL-2"
+LICENSE="GPL-2 RSA"
 SLOT="0"
 KEYWORDS="amd64 x86"
 IUSE="pcre ssl"
@@ -90,7 +90,7 @@ pkg_postinst() {
 	elog "\tadmin:live"
 
 	if use ssl ; then
-		if path_exists -a "${ROOT}"/etc/vdr/plugins/live/live.pem; then
+		if [[ -f ${ROOT}/etc/vdr/plugins/live/live.pem ]]; then
 			einfo "found an existing SSL cert, to create a new SSL cert, run:\n"
 			einfo "emerge --config ${PN}"
 		else

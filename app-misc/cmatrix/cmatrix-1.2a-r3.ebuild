@@ -1,20 +1,20 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 inherit autotools
 
 DESCRIPTION="An ncurses based app to show a scrolling screen from the Matrix"
-HOMEPAGE="http://www.asty.org/cmatrix"
-SRC_URI="http://www.asty.org/${PN}/dist/${P}.tar.gz"
+HOMEPAGE="https://sourceforge.net/projects/cmatrix/"
+SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 hppa ppc ppc64 sparc x86"
+KEYWORDS="~alpha amd64 hppa ppc ppc64 sparc x86"
 IUSE="X"
 
 DEPEND="
-	X? ( x11-apps/mkfontdir )
+	X? ( >=x11-apps/mkfontscale-1.2.0 )
 	sys-libs/ncurses:0="
 
 RDEPEND="${DEPEND}"

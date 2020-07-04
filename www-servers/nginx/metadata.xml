@@ -5,10 +5,6 @@
     <email>whissi@gentoo.org</email>
     <name>Thomas Deutschmann</name>
   </maintainer>
-  <maintainer type="person">
-    <email>dev-zero@gentoo.org</email>
-    <name>Tiziano Müller</name>
-  </maintainer>
   <use>
     <flag name="aio">Enables file AIO support</flag>
     <flag name="http">Enable HTTP core support</flag>
@@ -21,7 +17,7 @@
     <flag name="rtmp">NGINX-based Media Streaming Server</flag>
   </use>
   <upstream>
-    <changelog>http://nginx.org/en/CHANGES</changelog>
+    <changelog>https://nginx.org/en/CHANGES</changelog>
     <remote-id type="github">openresty/memc-nginx-module</remote-id>
     <remote-id type="bitbucket">nginx-goodies/nginx-sticky-module-ng</remote-id>
   </upstream>

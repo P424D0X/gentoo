@@ -6,6 +6,7 @@
 # Michał Górny <mgorny@gentoo.org>
 # @AUTHOR:
 # Author: Michał Górny <mgorny@gentoo.org>
+# @SUPPORTED_EAPIS: 4 5 6 7
 # @BLURB: A generic eclass for building multiple variants of packages.
 # @DESCRIPTION:
 # The multibuild eclass aims to provide a generic framework for building
@@ -26,6 +27,7 @@ esac
 if [[ ! ${_MULTIBUILD} ]]; then
 
 # @ECLASS-VARIABLE: MULTIBUILD_VARIANTS
+# @REQUIRED
 # @DESCRIPTION:
 # An array specifying all enabled variants which multibuild_foreach*
 # can execute the process for.
@@ -42,6 +44,7 @@ if [[ ! ${_MULTIBUILD} ]]; then
 # @CODE
 
 # @ECLASS-VARIABLE: MULTIBUILD_VARIANT
+# @OUTPUT_VARIABLE
 # @DESCRIPTION:
 # The current variant which the function was executed for.
 #
@@ -51,6 +54,7 @@ if [[ ! ${_MULTIBUILD} ]]; then
 # @CODE
 
 # @ECLASS-VARIABLE: MULTIBUILD_ID
+# @OUTPUT_VARIABLE
 # @DESCRIPTION:
 # The unique identifier for a multibuild run. In a simple run, it is
 # equal to MULTIBUILD_VARIANT. In a nested multibuild environment, it
@@ -64,6 +68,8 @@ if [[ ! ${_MULTIBUILD} ]]; then
 # @CODE
 
 # @ECLASS-VARIABLE: BUILD_DIR
+# @OUTPUT_VARIABLE
+# @DEFAULT_UNSET
 # @DESCRIPTION:
 # The current build directory. In global scope, it is supposed
 # to contain an 'initial' build directory. If unset, ${S} is used.

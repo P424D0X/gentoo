@@ -1,8 +1,8 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-PYTHON_COMPAT=( python2_7 python3_4 python3_5 python3_6 )
+EAPI=7
+PYTHON_COMPAT=( python3_6 python3_7 python3_8 )
 
 inherit distutils-r1
 
@@ -11,6 +11,7 @@ HOMEPAGE="https://github.com/boto/botocore"
 LICENSE="Apache-2.0"
 SLOT="0"
 IUSE="doc test"
+RESTRICT="!test? ( test )"
 
 if [[ "${PV}" == "9999" ]]; then
 	EGIT_REPO_URI="https://github.com/boto/botocore"
@@ -21,19 +22,16 @@ else
 fi
 
 RDEPEND="
-	>=dev-python/docutils-0.10[${PYTHON_USEDEP}]
-	>=dev-python/jmespath-0.7.1[${PYTHON_USEDEP}]
-	<dev-python/jmespath-1.0.0[${PYTHON_USEDEP}]
-	>=dev-python/python-dateutil-2.1[${PYTHON_USEDEP}]
-	<dev-python/python-dateutil-3.0.0[${PYTHON_USEDEP}]
+	dev-python/docutils[${PYTHON_USEDEP}]
+	dev-python/jmespath[${PYTHON_USEDEP}]
+	dev-python/python-dateutil[${PYTHON_USEDEP}]
+	dev-python/urllib3[${PYTHON_USEDEP}]
 "
 DEPEND="
 	dev-python/setuptools[${PYTHON_USEDEP}]
 	doc? (
-		>=dev-python/guzzle_sphinx_theme-0.7.10[${PYTHON_USEDEP}]
-		<dev-python/guzzle_sphinx_theme-0.8[${PYTHON_USEDEP}]
-		>=dev-python/sphinx-1.1.3[${PYTHON_USEDEP}]
-		<dev-python/sphinx-1.7[${PYTHON_USEDEP}]
+		dev-python/guzzle_sphinx_theme[${PYTHON_USEDEP}]
+		dev-python/sphinx[${PYTHON_USEDEP}]
 	)
 	test? (
 		${RDEPEND}
@@ -47,6 +45,10 @@ PATCHES=( "${FILESDIR}/1.8.6-tests-pass-all-env-vars-to-cmd-runner.patch" )
 
 python_compile_all() {
 	use doc && emake -C docs html
+
+	# remove version locked deps
+	sed -r -e 's:([a-zA-Z0-9_-]+)[><|=].*:\1:' \
+		-i requirements.txt || die
 }
 
 python_test() {

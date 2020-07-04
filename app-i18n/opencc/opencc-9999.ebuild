@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
@@ -22,11 +22,15 @@ LICENSE="Apache-2.0"
 SLOT="0/2"
 KEYWORDS=""
 IUSE="doc test"
+RESTRICT="!test? ( test )"
 
 DEPEND="doc? ( app-doc/doxygen )"
 
 DOCS="AUTHORS *.md"
-PATCHES=( "${FILESDIR}"/${PN}-test.patch )
+PATCHES=(
+	"${FILESDIR}"/${PN}-test.patch
+	"${FILESDIR}"/${PN}-stop-copy.patch
+)
 
 src_prepare() {
 	sed -i "s|\${DIR_SHARE_OPENCC}/doc|share/doc/${PF}|" doc/CMakeLists.txt

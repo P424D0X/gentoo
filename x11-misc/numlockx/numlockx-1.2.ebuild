@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -10,7 +10,7 @@ SRC_URI="mirror://gentoo/${P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="alpha amd64 ~arm ppc ppc64 sparc x86"
+KEYWORDS="~alpha amd64 ~arm ppc ppc64 sparc x86"
 IUSE=""
 
 RDEPEND="
@@ -20,8 +20,7 @@ RDEPEND="
 "
 DEPEND="
 	${RDEPEND}
-	x11-proto/xextproto
-	x11-proto/xproto
+	x11-base/xorg-proto
 "
 
 src_prepare() {

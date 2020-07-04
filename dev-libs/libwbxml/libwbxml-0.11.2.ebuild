@@ -1,18 +1,19 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 
 inherit cmake-utils
 
 DESCRIPTION="Library and tools to parse, encode and handle WBXML documents"
-HOMEPAGE="http://libwbxml.opensync.org/"
+HOMEPAGE="https://github.com/libwbxml/libwbxml"
 SRC_URI="mirror://sourceforge/libwbxml/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64 ppc x86"
 IUSE="test"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	dev-libs/expat

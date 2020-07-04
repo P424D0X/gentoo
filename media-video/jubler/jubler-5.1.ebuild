@@ -1,14 +1,14 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit fdo-mime java-pkg-2 java-ant-2
+inherit java-pkg-2 java-ant-2 xdg-utils
 
 MY_PN="${PN^}"
 
 DESCRIPTION="Java subtitle editor"
-HOMEPAGE="http://www.jubler.org/"
+HOMEPAGE="https://www.jubler.org/"
 SRC_URI="mirror://sourceforge/${PN}/${MY_PN}-source-${PV}.tar.bz2 -> ${P}.tar.bz2"
 
 LICENSE="GPL-2"
@@ -71,11 +71,11 @@ src_install() {
 }
 
 pkg_postinst() {
-	fdo-mime_desktop_database_update
-	fdo-mime_mime_database_update
+	xdg_desktop_database_update
+	xdg_mimeinfo_database_update
 }
 
 pkg_postrm() {
-	fdo-mime_desktop_database_update
-	fdo-mime_mime_database_update
+	xdg_desktop_database_update
+	xdg_mimeinfo_database_update
 }

@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -11,7 +11,7 @@ SRC_URI="mirror://sourceforge/kino/${P}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64 ppc ppc64 x86"
-IUSE="alsa dvdr gpac lame libav quicktime sox vorbis"
+IUSE="alsa dvdr gpac lame quicktime sox vorbis"
 
 # Optional dependency on cinelerra-cvs (as a replacement for libquicktime)
 # dropped because kino may run with it but won't build anymore.
@@ -30,8 +30,7 @@ CDEPEND="
 	media-libs/libiec61883
 	media-libs/libv4l:0=
 	alsa? ( >=media-libs/alsa-lib-1.0.9 )
-	!libav? ( >=media-video/ffmpeg-3:0= )
-	libav? ( media-video/libav:0= )
+	>=media-video/ffmpeg-3:0=
 	quicktime? ( >=media-libs/libquicktime-0.9.5 )
 "
 DEPEND="${CDEPEND}
@@ -57,7 +56,6 @@ src_prepare() {
 	fi
 
 	# Fix bug #169590
-	# https://sourceforge.net/tracker/?func=detail&aid=3304495&group_id=14103&atid=314103
 	sed -i \
 		-e '/\$(LIBQUICKTIME_LIBS) \\/d' \
 		-e '/^[[:space:]]*\$(SRC_LIBS)/ a\
@@ -65,7 +63,6 @@ src_prepare() {
 		src/Makefile.in || die
 
 	# Fix test failure discovered in bug #193947
-	# https://sourceforge.net/tracker/?func=detail&aid=3304499&group_id=14103&atid=314103
 	sed -i -e '$a\
 \
 ffmpeg/libavcodec/ps2/idct_mmi.c\
@@ -83,6 +80,7 @@ src/page_bttv.cc' po/POTFILES.in || die
 	eapply "${FILESDIR}/${P}-libav-0.8.patch"
 	eapply "${FILESDIR}/${P}-libavcodec-pkg-config.patch"
 	eapply "${FILESDIR}/${P}-ffmpeg3.patch"
+	eapply "${FILESDIR}/${P}-ffmpeg4.patch"
 
 	mv configure.in configure.ac || die
 	eautoreconf

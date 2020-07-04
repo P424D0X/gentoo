@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -6,7 +6,7 @@ EAPI=6
 MY_PN="coffeescript"
 
 DESCRIPTION="A little language that compiles into javascript"
-HOMEPAGE="http://coffeescript.org/"
+HOMEPAGE="https://coffeescript.org/"
 SRC_URI="https://github.com/jashkenas/${MY_PN}/archive/${PV}.tar.gz
 	-> ${P}.tar.gz"
 S="${WORKDIR}/${MY_PN}-${PV}"
@@ -21,7 +21,7 @@ IUSE="doc examples"
 
 RDEPEND="net-libs/nodejs"
 
-src_install(){
+src_install() {
 	local npm_module_dir="/usr/$(get_libdir)/node/${PN}"
 	insinto "${npm_module_dir}"
 	doins *.js package.json

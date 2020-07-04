@@ -1,13 +1,13 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-inherit autotools eutils git-r3
+EAPI=7
+inherit autotools desktop eutils git-r3
 
 DESCRIPTION="The fast and light GNUstep window manager"
-HOMEPAGE="http://www.windowmaker.org/"
-SRC_URI="http://www.windowmaker.org/pub/source/release/WindowMaker-extra-0.1.tar.gz"
-EGIT_REPO_URI="git://repo.or.cz/wmaker-crm.git"
+HOMEPAGE="https://www.windowmaker.org/"
+SRC_URI="https://www.windowmaker.org/pub/source/release/WindowMaker-extra-0.1.tar.gz"
+EGIT_REPO_URI="https://repo.or.cz/wmaker-crm.git"
 EGIT_BRANCH="next"
 
 SLOT="0"
@@ -22,7 +22,7 @@ DEPEND="media-libs/fontconfig
 	x11-libs/libXt
 	x11-libs/libXv
 	gif? ( >=media-libs/giflib-4.1.0-r3 )
-	imagemagick? ( media-gfx/imagemagick:0= )
+	imagemagick? ( >=media-gfx/imagemagick-7:0= )
 	jpeg? ( virtual/jpeg:0= )
 	png? ( media-libs/libpng:0= )
 	tiff? ( media-libs/tiff:0 )
@@ -31,6 +31,9 @@ DEPEND="media-libs/fontconfig
 	xrandr? ( x11-libs/libXrandr )"
 RDEPEND="${DEPEND}
 	nls? ( >=sys-devel/gettext-0.10.39 )"
+
+DOCS=( AUTHORS BUGFORM BUGS ChangeLog INSTALL INSTALL-WMAKER FAQ
+	NEWS README README.definable-cursor README.i18n TODO )
 
 src_unpack() {
 	# wm-extras
@@ -43,15 +46,11 @@ src_prepare() {
 	# Fix some paths
 	for file in WindowMaker/*menu* util/wmgenmenu.c; do
 		if [[ -r $file ]] ; then
-			sed -i -e "s:/usr/local/GNUstep/Applications/WPrefs.app:${EPREFIX}/usr/bin/:g;" "$file" || die
-			sed -i -e "s:/usr/local/share/WindowMaker:${EPREFIX}/usr/share/WindowMaker:g;" "$file" || die
-			sed -i -e "s:/opt/share/WindowMaker:${EPREFIX}/usr/share/WindowMaker:g;" "$file" || die
+			sed -i -e "s|/usr/local/GNUstep/Applications/WPrefs.app|${EPREFIX}/usr/bin/|g;" "$file" || die
+			sed -i -e "s|/usr/local/share/WindowMaker|${EPREFIX}/usr/share/WindowMaker|g;" "$file" || die
+			sed -i -e "s|/opt/share/WindowMaker|${EPREFIX}/usr/share/WindowMaker|g;" "$file" || die
 		fi;
 	done;
-
-	if has_version '>=media-gfx/imagemagick-7.0.1.0' ; then
-		eapply "${FILESDIR}/${PN}-0.95.8-imagemagick7.patch"
-	fi
 
 	default
 	eautoreconf
@@ -81,7 +80,7 @@ src_configure() {
 		--localedir="${EPREFIX}"/usr/share/locale \
 		${myconf}
 
-	cd ../WindowMaker-extra-0.1
+	pushd ../WindowMaker-extra-0.1 || die
 	econf
 }
 
@@ -89,18 +88,15 @@ src_compile() {
 	emake
 
 	# WindowMaker Extra Package (themes and icons)
-	cd ../WindowMaker-extra-0.1
+	pushd ../WindowMaker-extra-0.1 || die
 	emake
 }
 
 src_install() {
-	emake DESTDIR="${D}" install
-
-	dodoc AUTHORS BUGFORM BUGS ChangeLog INSTALL* FAQ* \
-		  README* NEWS TODO
+	default
 
 	# WindowMaker Extra
-	cd ../WindowMaker-extra-0.1
+	pushd ../WindowMaker-extra-0.1 || die
 	emake DESTDIR="${D}" install
 
 	newdoc README README.extra

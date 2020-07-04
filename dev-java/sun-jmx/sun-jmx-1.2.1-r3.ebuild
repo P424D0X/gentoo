@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=4
@@ -20,7 +20,7 @@ IUSE=""
 DEPEND=">=virtual/jdk-1.4
 	app-arch/unzip"
 RDEPEND=">=virtual/jre-1.4"
-RESTRICT="fetch"
+RESTRICT="bindist fetch"
 
 S="${WORKDIR}/${MY_P}-bin"
 
@@ -35,7 +35,7 @@ pkg_nofetch() {
 	einfo
 	einfo " 1. Visit ${DOWNLOADSITE} and follow instructions"
 	einfo " 2. Download ${SRC_URI}"
-	einfo " 3. Move file to ${DISTDIR}"
+	einfo " 3. Move file to your DISTDIR directory"
 	einfo " 4. Run emerge on this package again to complete"
 	einfo
 }

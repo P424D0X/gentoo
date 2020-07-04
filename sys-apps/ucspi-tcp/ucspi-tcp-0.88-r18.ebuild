@@ -1,23 +1,23 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="4"
 
-inherit eutils qmail
+inherit eutils qmail toolchain-funcs
 
 DESCRIPTION="Collection of tools for managing UNIX services"
-HOMEPAGE="http://cr.yp.to/ucspi-tcp.html"
+HOMEPAGE="https://cr.yp.to/ucspi-tcp.html"
 SRC_URI="
-	http://cr.yp.to/${PN}/${P}.tar.gz
+	https://cr.yp.to/${PN}/${P}.tar.gz
 	mirror://qmail/ucspi-rss.diff
 	http://smarden.org/pape/djb/manpages/${P}-man.tar.gz
 	http://xs3.b92.net/tomislavr/${P}-rblspp.patch
-	ipv6? ( http://www.fefe.de/ucspi/${P}-ipv6.diff19.bz2 )
+	ipv6? ( https://www.fefe.de/ucspi/${P}-ipv6.diff19.bz2 )
 "
 
 LICENSE="public-domain"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~sparc-solaris"
+KEYWORDS="~alpha amd64 arm hppa ~ia64 ~m68k ~mips ppc ppc64 s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~sparc-solaris"
 IUSE="ipv6 qmail-spp selinux"
 RESTRICT="test"
 

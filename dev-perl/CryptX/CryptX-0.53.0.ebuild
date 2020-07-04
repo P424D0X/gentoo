@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -9,8 +9,9 @@ inherit perl-module
 DESCRIPTION="Self-contained crypto toolkit"
 
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE="test minimal"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	>=virtual/perl-Exporter-5.590.0

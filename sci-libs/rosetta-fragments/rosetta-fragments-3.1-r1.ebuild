@@ -1,9 +1,9 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit eutils flag-o-matic prefix toolchain-funcs
+inherit eutils flag-o-matic prefix toolchain-funcs vcs-clean
 
 DESCRIPTION="Fragment library for rosetta"
 HOMEPAGE="http://www.rosettacommons.org"
@@ -31,7 +31,7 @@ PATCHES=(
 
 pkg_nofetch() {
 	einfo "Go to ${HOMEPAGE} and get ${PN}.tgz and rename it to ${A}"
-	einfo "which must be placed in ${DISTDIR}"
+	einfo "which must be placed into your DISTDIR directory."
 }
 
 src_prepare() {

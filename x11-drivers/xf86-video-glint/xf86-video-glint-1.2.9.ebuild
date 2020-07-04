@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -7,12 +7,9 @@ inherit xorg-2
 
 DESCRIPTION="GLINT/Permedia video driver"
 
-KEYWORDS="alpha amd64 ia64 ppc sparc x86 ~amd64-fbsd ~x86-fbsd"
+KEYWORDS="~alpha amd64 ~ia64 ppc sparc x86"
 IUSE=""
 
 RDEPEND=">=x11-base/xorg-server-1.0.99"
 DEPEND="${RDEPEND}
-	x11-proto/videoproto
-	x11-proto/xextproto
-	x11-proto/xf86dgaproto
-	x11-proto/xproto"
+	x11-base/xorg-proto"

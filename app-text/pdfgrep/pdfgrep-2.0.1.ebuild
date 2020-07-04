@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -9,8 +9,9 @@ SRC_URI="http://www.pdfgrep.org/download/${P}.tar.gz"
 
 SLOT="0"
 LICENSE="GPL-2"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE="+pcre test unac"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	app-text/poppler:=[cxx]
@@ -21,6 +22,7 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	test? (
 			dev-texlive/texlive-latex
+			dev-texlive/texlive-latexrecommended
 			dev-util/dejagnu
 		)"
 

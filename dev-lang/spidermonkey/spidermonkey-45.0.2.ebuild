@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -9,15 +9,15 @@ MY_PN="mozjs"
 MY_P="${MY_PN}-${PV/_/.}"
 DESCRIPTION="Stand-alone JavaScript C library"
 HOMEPAGE="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey"
-SRC_URI="https://people.mozilla.org/~sfink/${MY_P}.tar.bz2
+SRC_URI="https://archive.mozilla.org/pub/${PN}/releases/${PV}/${MY_P}.tar.bz2
 	https://dev.gentoo.org/~axs/distfiles/${PN}-slot45-patches-01.tar.xz"
 
 LICENSE="NPL-1.1"
 SLOT="45"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86"
 IUSE="debug +jit minimal static-libs +system-icu test"
 
-RESTRICT="ia64? ( test )"
+RESTRICT="!test? ( test ) ia64? ( test )"
 
 S="${WORKDIR}/${MY_P%.rc*}"
 BUILDDIR="${S}/js/src"
@@ -29,7 +29,7 @@ RDEPEND=">=dev-libs/nspr-4.10.10
 	system-icu? ( >=dev-libs/icu-51.1:= )"
 DEPEND="${RDEPEND}"
 
-pkg_setup(){
+pkg_setup() {
 	if [[ ${MERGE_TYPE} != "binary" ]]; then
 		moz_pkgsetup
 	fi
@@ -40,7 +40,8 @@ src_prepare() {
 		"${WORKDIR}"/sm45/mozjs45-1266366.patch \
 		"${WORKDIR}"/sm45/mozjs38-pkg-config-version.patch \
 		"${WORKDIR}"/sm45/mozilla_configure_regexp_esr.patch \
-		"${WORKDIR}"/sm45/${PN}-${SLOT}-dont-symlink-non-objfiles.patch
+		"${WORKDIR}"/sm45/${PN}-${SLOT}-dont-symlink-non-objfiles.patch \
+		"${FILESDIR}"/moz38-dont-hardcode-libc-soname.patch
 
 	# apply relevant (modified) patches from gentoo's firefox-45 patchset
 	eapply "${WORKDIR}"/sm45/ff45
@@ -57,7 +58,7 @@ src_prepare() {
 }
 
 src_configure() {
-	export SHELL="${SHELL:-${EPREFIX%/}/bin/bash}"
+	export SHELL="${SHELL:-${EPREFIX}/bin/bash}"
 	cd "${BUILDDIR}" || die
 
 	econf \

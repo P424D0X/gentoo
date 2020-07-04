@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -10,7 +10,7 @@ SRC_URI="https://dl.suckless.org/tools/${P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="amd64 ~arm hppa ppc ppc64 x86 ~x86-fbsd"
+KEYWORDS="amd64 ~arm hppa ppc ppc64 x86"
 IUSE="xinerama"
 
 RDEPEND="
@@ -21,8 +21,7 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
-	xinerama? ( x11-proto/xineramaproto )
-	x11-proto/xproto
+	x11-base/xorg-proto
 "
 
 src_prepare() {

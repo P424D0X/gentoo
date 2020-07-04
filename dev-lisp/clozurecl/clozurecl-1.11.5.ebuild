@@ -1,9 +1,9 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit eutils flag-o-matic multilib toolchain-funcs
+inherit eutils flag-o-matic multilib toolchain-funcs vcs-clean
 
 MY_PN=ccl
 MY_P=${MY_PN}-${PV}
@@ -18,11 +18,11 @@ SRC_URI="
 	x64-macos? ( https://github.com/Clozure/ccl/releases/download/v${PV}/${MY_P}-darwinx86.tar.gz )
 	x86-solaris? ( https://github.com/Clozure/ccl/releases/download/v${PV}/${MY_P}-solarisx86.tar.gz )
 	x64-solaris? ( https://github.com/Clozure/ccl/releases/download/v${PV}/${MY_P}-solarisx86.tar.gz )
-	doc? ( ${HOMEPAGE}/docs/ccl.html )"
+	doc? ( https://ccl.clozure.com/docs/ccl.html )"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~amd64 x86 ~amd64-linux ~x86-linux ~x64-macos"
+KEYWORDS="amd64 x86 ~amd64-linux ~x86-linux ~x64-macos"
 IUSE="doc"
 
 RDEPEND=">=dev-lisp/asdf-2.33-r3:="
@@ -30,6 +30,8 @@ DEPEND="${RDEPEND}"
 
 S="${WORKDIR}"/${MY_PN}
 ENVD="${T}/50ccl"
+
+PATCHES=( "${FILESDIR}"/${P}-no-pie-32.patch )
 
 src_prepare() {
 	default

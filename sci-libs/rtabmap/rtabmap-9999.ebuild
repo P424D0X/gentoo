@@ -1,7 +1,7 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
 SCM=""
 if [ "${PV#9999}" != "${PV}" ] ; then
@@ -17,6 +17,7 @@ if [ "${PV#9999}" != "${PV}" ] ; then
 else
 	KEYWORDS="~amd64"
 	SRC_URI="https://github.com/introlab/rtabmap/archive/${PV}.tar.gz -> ${P}.tar.gz"
+	S="${WORKDIR}/${P}"
 fi
 
 DESCRIPTION="Real-Time Appearance-Based Mapping (RGB-D Graph SLAM)"
@@ -27,7 +28,7 @@ IUSE="examples ieee1394 openni2 qt5"
 
 RDEPEND="
 	media-libs/opencv:=[qt5(-)?]
-	sci-libs/pcl:=[openni,vtk]
+	sci-libs/pcl:=[openni,vtk,qt5(-)?]
 	sci-libs/vtk:=[qt5(-)?]
 	sys-libs/zlib
 	sci-libs/octomap:=
@@ -41,8 +42,8 @@ RDEPEND="
 		dev-qt/qtsvg:5
 	)
 "
-DEPEND="${RDEPEND}
-	virtual/pkgconfig"
+DEPEND="${RDEPEND}"
+BDEPEND="virtual/pkgconfig"
 
 src_configure() {
 	local mycmakeargs=(

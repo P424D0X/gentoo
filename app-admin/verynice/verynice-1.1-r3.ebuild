@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -11,7 +11,7 @@ SRC_URI="http://gentoo/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~ppc ~x86"
+KEYWORDS="amd64 ppc x86"
 IUSE=""
 
 S=${WORKDIR}/${PN}
@@ -25,7 +25,7 @@ src_compile() {
 	emake RPM_BUILD_ROOT="${D}" PREFIX=/usr
 }
 
-src_install(){
+src_install() {
 	emake RPM_BUILD_ROOT="${D}" PREFIX=/usr VERSION=${PVR} install
 	doinitd "${FILESDIR}"/verynice
 	systemd_dounit "${FILESDIR}"/verynice.service

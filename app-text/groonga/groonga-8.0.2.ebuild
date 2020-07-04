@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -11,7 +11,7 @@ SRC_URI="https://packages.groonga.org/source/${PN}/${P}.tar.gz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="~amd64 ~x86"
 IUSE="abort benchmark debug doc dynamic-malloc-change +exact-alloc-count examples fmalloc futex jemalloc libedit libevent lzo +mecab msgpack +nfkc sphinx static-libs uyield zeromq zlib zstd"
 
 RDEPEND=">=dev-libs/onigmo-6.1.1:0=
@@ -53,8 +53,7 @@ src_configure() {
 		--without-kytea
 		--without-libstemmer
 		--disable-arrow
-		--with-log-path="${EROOT%/}/var/log/${PN}.log"
-		--docdir="${EROOT%/}/usr/share/doc/${P}"
+		--with-log-path="${EPREFIX}"/var/log/${PN}.log
 		--without-ruby
 		--with-shared-onigmo
 		--with-onigmo=system

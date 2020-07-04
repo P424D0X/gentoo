@@ -1,16 +1,16 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
 inherit eutils toolchain-funcs
 
 DESCRIPTION="A minimalistic X11 window manager"
-HOMEPAGE="http://www.red-bean.com/~decklin/software/aewm/"
-SRC_URI="${HOMEPAGE}${P}.tar.bz2"
+HOMEPAGE="https://www.red-bean.com/decklin/aewm/"
+SRC_URI="https://www.red-bean.com/decklin/aewm/${P}.tar.bz2"
 
 LICENSE="MIT 9wm"
 SLOT="0"
-KEYWORDS="amd64 ppc x86 ~x86-fbsd"
+KEYWORDS="amd64 ppc x86"
 
 RDEPEND="
 	dev-libs/glib:2
@@ -22,8 +22,7 @@ RDEPEND="
 DEPEND="
 	${RDEPEND}
 	virtual/pkgconfig
-	x11-proto/xextproto
-	x11-proto/xproto
+	x11-base/xorg-proto
 "
 
 src_prepare() {

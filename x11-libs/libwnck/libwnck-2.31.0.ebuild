@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -12,7 +12,7 @@ HOMEPAGE="https://www.gnome.org/"
 
 LICENSE="LGPL-2+"
 SLOT="1"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm ~arm64 ~hppa ~ia64 ~mips ppc ppc64 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~x64-solaris ~x86-solaris"
 
 IUSE="+introspection startup-notification"
 
@@ -26,6 +26,7 @@ RDEPEND="
 	startup-notification? ( >=x11-libs/startup-notification-0.4 )
 "
 DEPEND="${RDEPEND}
+	dev-util/glib-utils
 	dev-util/gtk-doc-am
 	>=dev-util/intltool-0.40
 	sys-devel/gettext
@@ -43,7 +44,7 @@ src_prepare() {
 	gnome2_src_prepare
 }
 
-src_configure () {
+src_configure() {
 	gnome2_src_configure \
 		--disable-static \
 		$(use_enable introspection) \

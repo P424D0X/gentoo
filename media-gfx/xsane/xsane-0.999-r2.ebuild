@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -14,7 +14,7 @@ SRC_URI="
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm ppc ppc64 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos"
+KEYWORDS="~alpha amd64 arm ppc ppc64 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos"
 IUSE="nls jpeg png tiff gimp lcms ocr"
 
 RDEPEND="
@@ -76,10 +76,9 @@ src_install() {
 	# link xsane so it is seen as a plugin in gimp
 	if use gimp; then
 		local plugindir
-		if [ -x "${EPREFIX}"/usr/bin/gimptool ]; then
-			plugindir="$(gimptool --gimpplugindir)/plug-ins"
-		elif [ -x "${EPREFIX}"/usr/bin/gimptool-2.0 ]; then
-			plugindir="$(gimptool-2.0 --gimpplugindir)/plug-ins"
+		local gimptool=$(ls "${EPREFIX}"/usr/bin/gimptool* | head -n1)
+		if [ -n "${gimptool}" ]; then
+			plugindir="$(${gimptool} --gimpplugindir)/plug-ins"
 		else
 			die "Can't find GIMP plugin directory."
 		fi

@@ -1,17 +1,17 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
 
-inherit autotools eutils
+inherit autotools eutils ltprune
 
 DESCRIPTION="A small, fast, full-featured window manager for X"
-HOMEPAGE="http://blackboxwm.sourceforge.net/"
+HOMEPAGE="https://github.com/bbidulock/blackboxwm"
 SRC_URI="mirror://sourceforge/${PN}wm/${P}.tar.bz2"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ppc ppc64 sparc x86 ~x86-fbsd"
+KEYWORDS="~alpha amd64 arm hppa ~ia64 ppc ppc64 sparc x86"
 IUSE="nls truetype debug"
 
 RDEPEND="x11-libs/libXft
@@ -20,8 +20,7 @@ RDEPEND="x11-libs/libXft
 	truetype? ( media-libs/freetype )"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
-	>=sys-apps/sed-4
-	x11-proto/xextproto"
+	x11-base/xorg-proto"
 
 src_prepare() {
 	epatch "${FILESDIR}"/${P}-gcc-4.3.patch \

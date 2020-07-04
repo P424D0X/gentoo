@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -6,14 +6,14 @@ EAPI=5
 inherit java-pkg-opt-2
 
 DESCRIPTION="A compiler for the Perl 6 programming language"
-HOMEPAGE="http://rakudo.org"
+HOMEPAGE="https://rakudo.org"
 
 if [[ ${PV} == "9999" ]]; then
 	EGIT_REPO_URI="https://github.com/rakudo/${PN}.git"
 	inherit git-r3
 	KEYWORDS=""
 else
-	SRC_URI="${HOMEPAGE}/downloads/${PN}/${P}.tar.gz"
+	SRC_URI="https://rakudo.org/downloads/${PN}/${P}.tar.gz"
 	KEYWORDS="~amd64 ~x86"
 fi
 
@@ -21,6 +21,7 @@ LICENSE="Artistic-2"
 SLOT="0"
 # TODO: add USE="javascript" once that's usable in nqp
 IUSE="clang java +moar test"
+RESTRICT="!test? ( test )"
 REQUIRED_USE="|| ( java moar )"
 
 CDEPEND="~dev-lang/nqp-${PV}:${SLOT}=[java?,moar?,clang=]"

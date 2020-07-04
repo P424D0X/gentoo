@@ -1,16 +1,19 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit linux-mod
+inherit linux-mod toolchain-funcs
 
 if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/Bumblebee-Project/${PN}.git"
 	EGIT_BRANCH="develop"
 else
-	PATCHES=( "${FILESDIR}/${PN}-0.8-kernel-4.12.patch" )
+	PATCHES=(
+		"${FILESDIR}/${PN}-0.8-kernel-4.12.patch"
+		"${FILESDIR}/${PN}-0.8-kernel-5.6.patch"
+	)
 	SRC_URI="https://github.com/Bumblebee-Project/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~x86"
 fi
@@ -34,12 +37,12 @@ pkg_setup() {
 	linux-mod_pkg_setup
 
 	BUILD_TARGETS="default"
-	BUILD_PARAMS="KVERSION=${KV_FULL}"
+	BUILD_PARAMS="KVERSION=${KV_FULL} CC=$(tc-getCC)"
 }
 
 src_prepare() {
 	# Fix build failure, bug #513542
-	sed -i 's/^KDIR.*$/KDIR\ \:= \/usr\/src\/linux/g' Makefile || die
+	sed "s%^KDIR :=.*%KDIR := ${KERNEL_DIR}%g" -i Makefile || die
 
 	default
 }

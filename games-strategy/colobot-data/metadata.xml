@@ -2,15 +2,13 @@
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer type="person">
-		<email>fdsfgs@krutt.org</email>
-		<name>soredake</name>
+		<email>mgorny@gentoo.org</email>
+		<name>Michał Górny</name>
 	</maintainer>
 	<upstream>
 		<remote-id type="github">colobot/colobot-data</remote-id>
 	</upstream>
 	<use>
 		<flag name="music">Enable music support</flag>
-		<flag name="music_flac_convert">Fetch flac music and convert it to ogg</flag>
-		<flag name="music_ogg">Fetch ogg music</flag>
 	</use>
 </pkgmetadata>

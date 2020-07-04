@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -11,8 +11,8 @@ HOMEPAGE="https://wiki.gnome.org/Projects/GSound"
 
 LICENSE="LGPL-2.1+"
 SLOT="0"
-KEYWORDS="amd64 x86"
-IUSE="+introspection vala"
+KEYWORDS="amd64 ~arm ~arm64 ~ia64 ~ppc ~ppc64 x86"
+IUSE="+introspection +vala"
 REQUIRED_USE="vala? ( introspection )"
 
 RDEPEND="
@@ -31,7 +31,7 @@ src_prepare() {
 	gnome2_src_prepare
 }
 
-src_configure () {
+src_configure() {
 	gnome2_src_configure \
 		--disable-static \
 		$(use_enable introspection) \

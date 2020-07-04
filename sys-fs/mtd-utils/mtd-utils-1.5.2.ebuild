@@ -1,9 +1,9 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
 
-inherit eutils vcs-snapshot
+inherit eutils vcs-snapshot toolchain-funcs
 
 if [[ ${PV} == "99999999" ]] ; then
 	EGIT_REPO_URI="git://git.infradead.org/mtd-utils.git"
@@ -19,7 +19,7 @@ else
 		MY_PV="${PV}-02ae0aac87576d07202a62d11294ea55b56f450b"
 		SRC_URI="mirror://gentoo/${PN}-snapshot-${MY_PV}.tar.xz"
 	fi
-	KEYWORDS="amd64 arm ~mips ppc x86 ~amd64-linux ~arm-linux ~x86-linux"
+	KEYWORDS="amd64 arm ~mips ppc x86 ~amd64-linux ~x86-linux"
 fi
 
 DESCRIPTION="MTD userspace tools (NFTL, JFFS2, NAND, FTL, UBI)"

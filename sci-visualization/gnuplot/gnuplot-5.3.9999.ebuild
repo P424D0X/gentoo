@@ -1,7 +1,7 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit autotools flag-o-matic readme.gentoo-r1 toolchain-funcs wxwidgets
 
@@ -9,24 +9,20 @@ DESCRIPTION="Command-line driven interactive plotting program"
 HOMEPAGE="http://www.gnuplot.info/"
 
 if [[ -z ${PV%%*9999} ]]; then
-	inherit cvs
-	ECVS_SERVER="gnuplot.cvs.sourceforge.net:/cvsroot/gnuplot"
-	ECVS_MODULE="gnuplot"
-	ECVS_BRANCH="HEAD"
-	ECVS_USER="anonymous"
-	ECVS_CVS_OPTIONS="-dP"
+	inherit git-r3
+	EGIT_REPO_URI="https://git.code.sf.net/p/gnuplot/gnuplot-main"
+	EGIT_BRANCH="master"
 	MY_P="${PN}"
-	SRC_URI=""
-	KEYWORDS=""
+	EGIT_CHECKOUT_DIR="${WORKDIR}/${MY_P}"
 else
 	MY_P="${P/_/.}"
 	SRC_URI="mirror://sourceforge/gnuplot/${MY_P}.tar.gz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sparc ~x86 ~ppc-aix ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sparc ~x86 ~ppc-aix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
 fi
 
-LICENSE="gnuplot bitmap? ( free-noncomm )"
+LICENSE="gnuplot"
 SLOT="0"
-IUSE="aqua bitmap cairo compat doc examples +gd ggi latex libcaca libcerf lua qt5 readline svga wxwidgets X"
+IUSE="aqua bitmap cairo doc examples +gd ggi latex libcaca libcerf lua qt5 readline wxwidgets X"
 
 RDEPEND="
 	cairo? (
@@ -41,7 +37,8 @@ RDEPEND="
 			>=dev-texlive/texlive-latexrecommended-2008-r2 ) )
 	libcaca? ( media-libs/libcaca )
 	lua? ( dev-lang/lua:0 )
-	qt5? ( dev-qt/qtcore:5=
+	qt5? (
+		dev-qt/qtcore:5=
 		dev-qt/qtgui:5=
 		dev-qt/qtnetwork:5=
 		dev-qt/qtprintsupport:5=
@@ -49,14 +46,16 @@ RDEPEND="
 		dev-qt/qtwidgets:5= )
 	readline? ( sys-libs/readline:0= )
 	libcerf? ( sci-libs/libcerf )
-	svga? ( media-libs/svgalib )
 	wxwidgets? (
 		x11-libs/wxGTK:3.0[X]
 		x11-libs/cairo
 		x11-libs/pango
 		x11-libs/gtk+:2 )
 	X? ( x11-libs/libXaw )"
-DEPEND="${RDEPEND}
+
+DEPEND="${RDEPEND}"
+
+BDEPEND="
 	virtual/pkgconfig
 	doc? (
 		virtual/latex-base
@@ -89,14 +88,10 @@ src_prepare() {
 	DOC_CONTENTS='Gnuplot no longer links against pdflib, see the ChangeLog
 		for details. You can use the "pdfcairo" terminal for PDF output.'
 	use cairo || DOC_CONTENTS+=' It is available with USE="cairo".'
-	use svga && DOC_CONTENTS+='\n\nIn order to enable ordinary users to use
-		SVGA console graphics, gnuplot needs to be set up as setuid root.
-		Please note that this is usually considered to be a security hazard.
-		As root, manually "chmod u+s /usr/bin/gnuplot".'
-	use gd && DOC_CONTENTS+='\n\nFor font support in png/jpeg/gif output,
+	use gd && DOC_CONTENTS+="\n\nFor font support in png/jpeg/gif output,
 		you may have to set the GDFONTPATH and GNUPLOT_DEFAULT_GDFONT
 		environment variables. See the FAQ file in /usr/share/doc/${PF}/
-		for more information.'
+		for more information."
 
 	eautoreconf
 
@@ -116,7 +111,7 @@ src_configure() {
 
 	if use wxwidgets; then
 		WX_GTK_VER="3.0"
-		need-wxwidgets unicode
+		setup-wxwidgets
 	fi
 
 	tc-export CC CXX			#453174
@@ -130,15 +125,12 @@ src_configure() {
 		--with-readline=$(usex readline gnu builtin) \
 		$(use_with bitmap bitmap-terminals) \
 		$(use_with cairo) \
-		$(use_enable compat backwards-compatibility) \
 		$(use_with doc tutorial) \
 		$(use_with gd) \
 		"$(use_with ggi ggi "${EPREFIX}/usr/$(get_libdir)")" \
-		"$(use_with ggi xmi "${EPREFIX}/usr/$(get_libdir)")" \
 		"$(use_with libcaca caca "${EPREFIX}/usr/$(get_libdir)")" \
 		$(use_with libcerf) \
 		$(use_with lua) \
-		$(use_with svga linux-vga) \
 		$(use_with X x) \
 		--enable-stats \
 		$(use_with qt5 qt qt5) \
@@ -150,10 +142,6 @@ src_configure() {
 src_compile() {
 	# Prevent access violations, see bug 201871
 	export VARTEXFONTS="${T}/fonts"
-
-	# We believe that the following line is no longer needed.
-	# In case of problems file a bug report at bugs.gentoo.org.
-	#addwrite /dev/svga:/dev/mouse:/dev/tts/0
 
 	emake all
 
@@ -172,10 +160,10 @@ src_compile() {
 	fi
 }
 
-src_install () {
+src_install() {
 	emake DESTDIR="${D}" install
 
-	dodoc BUGS ChangeLog NEWS PGPKEYS PORTING README* RELEASE_NOTES TODO
+	dodoc BUGS NEWS PGPKEYS README* RELEASE_NOTES TODO
 	newdoc term/PostScript/README README-ps
 	newdoc term/js/README README-js
 	use lua && newdoc term/lua/README README-lua
@@ -185,8 +173,8 @@ src_install () {
 		# Demo files
 		insinto /usr/share/${PN}/${GP_VERSION}
 		doins -r demo
-		rm -f "${ED%/}"/usr/share/${PN}/${GP_VERSION}/demo/Makefile*
-		rm -f "${ED%/}"/usr/share/${PN}/${GP_VERSION}/demo/binary*
+		rm -f "${ED}"/usr/share/${PN}/${GP_VERSION}/demo/Makefile*
+		rm -f "${ED}"/usr/share/${PN}/${GP_VERSION}/demo/binary*
 	fi
 
 	if use doc; then

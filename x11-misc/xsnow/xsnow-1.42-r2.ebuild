@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -6,11 +6,11 @@ inherit toolchain-funcs
 
 DESCRIPTION="let it snow on your desktop and windows"
 HOMEPAGE="https://janswaal.home.xs4all.nl/Xsnow/"
-SRC_URI="${HOMEPAGE}${P}.tar.gz"
+SRC_URI="https://janswaal.home.xs4all.nl/Xsnow/${P}.tar.gz"
 
 LICENSE="freedist"
 SLOT="0"
-KEYWORDS="amd64 ppc ppc64 sparc x86 ~x86-fbsd"
+KEYWORDS="amd64 ppc ppc64 sparc x86"
 
 RDEPEND="
 	x11-libs/libX11
@@ -21,10 +21,9 @@ RDEPEND="
 DEPEND="
 	${RDEPEND}
 	app-text/rman
+	x11-base/xorg-proto
 	x11-misc/imake
 	x11-misc/gccmakedep
-	x11-proto/xextproto
-	x11-proto/xproto
 "
 
 src_compile() {

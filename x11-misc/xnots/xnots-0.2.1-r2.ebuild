@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -10,7 +10,7 @@ SRC_URI="mirror://sourceforge/xnots/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE="vim-syntax"
 
 RDEPEND="
@@ -24,9 +24,7 @@ RDEPEND="
 DEPEND="
 	${RDEPEND}
 	virtual/pkgconfig
-	x11-proto/randrproto
-	x11-proto/renderproto
-	x11-proto/xextproto
+	x11-base/xorg-proto
 "
 PATCHES=(
 	"${FILESDIR}"/${PN}-0.2.1-gcc6.patch

@@ -72,11 +72,11 @@ xpi_install() {
 	#cd ${x}
 	# determine id for extension
 	if [[ -f "${x}"/install.rdf ]]; then
-	emid="$(sed -n -e '/install-manifest/,$ { /em:id/!d; s/.*[\">]\([^\"<>]*\)[\"<].*/\1/; p; q }' "${x}"/install.rdf)" \
-		|| die "failed to determine extension id from install.rdf"
+		emid="$(sed -n -e '/install-manifest/,$ { /em:id/!d; s/.*[\">]\([^\"<>]*\)[\"<].*/\1/; p; q }' "${x}"/install.rdf)"
+		[[ -z "${emid}" ]] && die "failed to determine extension id from install.rdf"
 	elif [[ -f "${x}"/manifest.json ]]; then
-		emid="$( sed -n 's/.*"id": "\(.*\)",/\1/p' "${x}"/manifest.json )" \
-			|| die "failed to determine extension id from manifest.json"
+		emid="$( sed -n 's/.*"id": "\(.*\)".*/\1/p' "${x}"/manifest.json )"
+		[[ -z "${emid}" ]] && die "failed to determine extension id from manifest.json"
 	else
 		die "failed to determine extension id"
 	fi
@@ -89,6 +89,36 @@ xpi_install() {
 		insinto "${MOZILLA_FIVE_HOME}"/extensions/${emid}
 	fi
 	doins -r "${x}"/* || die "failed to copy extension"
+}
+
+xpi_copy() {
+	local emid
+
+	# You must tell xpi_install which xpi to use
+	[[ ${#} -ne 1 ]] && die "$FUNCNAME takes exactly one argument, please specify an xpi to unpack"
+
+	x="${1}"
+	#cd ${x}
+	# determine id for extension
+	if [[ -f "${x}"/install.rdf ]]; then
+		emid="$(sed -n -e '/install-manifest/,$ { /em:id/!d; s/.*[\">]\([^\"<>]*\)[\"<].*/\1/; p; q }' "${x}"/install.rdf)"
+		[[ -z "${emid}" ]] && die "failed to determine extension id from install.rdf"
+	elif [[ -f "${x}"/manifest.json ]]; then
+		emid="$(sed -n 's/.*"id": "\([^"]*\)".*/\1/p' "${x}"/manifest.json)"
+		[[ -z "${emid}" ]] && die "failed to determine extension id from manifest.json"
+	else
+		die "failed to determine extension id"
+	fi
+
+	if [[ -n ${MOZEXTENSION_TARGET} ]]; then
+		insinto "${MOZILLA_FIVE_HOME}"/${MOZEXTENSION_TARGET%/}
+	elif $(mozversion_extension_location) ; then
+		insinto "${MOZILLA_FIVE_HOME}"/browser/extensions
+	else
+		insinto "${MOZILLA_FIVE_HOME}"/extensions
+	fi
+
+	newins "${DISTDIR%/}"/${x##*/}.xpi ${emid}.xpi
 }
 
 _MOZEXTENSION=1

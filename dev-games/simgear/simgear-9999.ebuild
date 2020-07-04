@@ -1,9 +1,9 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit eutils cmake-utils toolchain-funcs git-r3
+inherit eutils cmake-utils toolchain-funcs flag-o-matic git-r3
 
 DESCRIPTION="Development library for simulation games"
 HOMEPAGE="http://www.simgear.org/"
@@ -14,11 +14,13 @@ EGIT_BRANCH="next"
 LICENSE="GPL-2"
 KEYWORDS=""
 SLOT="0"
-IUSE="+dns debug gdal openmp subversion test"
+IUSE="cpu_flags_x86_sse2 +dns debug gdal openmp subversion test"
+RESTRICT="!test? ( test )"
 
+# TODO aeonwave
 COMMON_DEPEND="
 	dev-libs/expat
-	>=dev-games/openscenegraph-3.2.0
+	dev-games/openscenegraph
 	media-libs/openal
 	net-misc/curl
 	sys-libs/zlib
@@ -32,6 +34,10 @@ DEPEND="${COMMON_DEPEND}
 RDEPEND="${COMMON_DEPEND}
 	subversion? ( dev-vcs/subversion )
 "
+
+PATCHES=(
+	"${FILESDIR}/${PN}-2019.1.1-gdal3.patch"
+)
 
 pkg_pretend() {
 	[[ ${MERGE_TYPE} != binary ]] && use openmp && tc-check-openmp
@@ -48,7 +54,8 @@ src_configure() {
 		-DENABLE_OPENMP=$(usex openmp)
 		-DENABLE_PKGUTIL=ON
 		-DENABLE_RTI=OFF
-		-DENABLE_SIMD=ON
+		-DENABLE_SIMD=OFF # see CPU_FLAGS
+		-DENABLE_SIMD_CODE=$(usex cpu_flags_x86_sse2)
 		-DENABLE_SOUND=ON
 		-DENABLE_TESTS=$(usex test)
 		-DSIMGEAR_HEADLESS=OFF
@@ -58,5 +65,10 @@ src_configure() {
 		-DUSE_AEONWAVE=OFF
 		-DOSG_FSTREAM_EXPORT_FIXED=OFF # TODO perhaps track it
 	)
+
+	if use cpu_flags_x86_sse2; then
+		append-flags -msse2 -mfpmath=sse
+	fi
+
 	cmake-utils_src_configure
 }

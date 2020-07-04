@@ -1,16 +1,15 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 if [[ ${PV} != 9999 ]]; then
-	inherit cmake-utils depend.apache eutils systemd toolchain-funcs user wxwidgets
+	inherit cmake-utils depend.apache eutils systemd toolchain-funcs wxwidgets
 	SRC_URI="https://github.com/Icinga/icinga2/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~ppc64 ~x86"
 else
-	inherit cmake-utils depend.apache eutils git-r3 systemd toolchain-funcs user wxwidgets
+	inherit cmake-utils depend.apache eutils git-r3 systemd toolchain-funcs wxwidgets
 	EGIT_REPO_URI="https://github.com/Icinga/icinga2.git"
 	EGIT_BRANCH="master"
-	KEYWORDS=""
 fi
 
 DESCRIPTION="Distributed, general purpose, network monitoring engine"
@@ -18,16 +17,18 @@ HOMEPAGE="http://icinga.org/icinga2"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+mysql postgres classicui console libressl lto mail minimal nano-syntax +plugins studio +vim-syntax"
+IUSE="console libressl lto mail mariadb minimal +mysql nano-syntax +plugins postgres systemd +vim-syntax"
 WX_GTK_VER="3.0"
 
 CDEPEND="
 	!libressl? ( dev-libs/openssl:0= )
 	libressl? ( dev-libs/libressl:0= )
-	>=dev-libs/boost-1.58-r1
+	>=dev-libs/boost-1.66:=[context]
 	console? ( dev-libs/libedit )
-	mysql? ( virtual/mysql )
-	postgres? ( dev-db/postgresql:= )"
+	mariadb? ( dev-db/mariadb-connector-c:= )
+	mysql? ( dev-db/mysql-connector-c:= )
+	postgres? ( dev-db/postgresql:= )
+	dev-libs/yajl"
 
 DEPEND="
 	${CDEPEND}
@@ -41,22 +42,17 @@ RDEPEND="
 		net-analyzer/nagios-plugins
 	) )
 	mail? ( virtual/mailx )
-	classicui? ( net-analyzer/icinga[web] )
-	studio? ( x11-libs/wxGTK:3.0 )"
+	acct-user/icinga
+	acct-group/icinga
+	acct-group/icingacmd
+	acct-group/nagios"
 
-REQUIRED_USE="!minimal? ( || ( mysql postgres ) )"
+REQUIRED_USE="!minimal? ( || ( mariadb mysql postgres ) )"
 
 want_apache2
 
 pkg_setup() {
 	depend.apache_pkg_setup
-	if use studio ; then
-		setup-wxwidgets
-	fi
-	enewgroup icinga
-	enewgroup icingacmd
-	enewgroup nagios  # for plugins
-	enewuser icinga -1 -1 /var/lib/icinga2 "icinga,icingacmd,nagios"
 }
 
 src_configure() {
@@ -65,7 +61,6 @@ src_configure() {
 		-DICINGA2_UNITY_BUILD=FALSE
 		-DCMAKE_VERBOSE_MAKEFILE=ON
 		-DCMAKE_BUILD_TYPE=None
-		-DCMAKE_INSTALL_PREFIX=/usr
 		-DCMAKE_INSTALL_SYSCONFDIR=/etc
 		-DCMAKE_INSTALL_LOCALSTATEDIR=/var
 		-DICINGA2_SYSCONFIGFILE=/etc/conf.d/icinga2
@@ -73,7 +68,9 @@ src_configure() {
 		-DICINGA2_USER=icinga
 		-DICINGA2_GROUP=icingacmd
 		-DICINGA2_COMMAND_GROUP=icingacmd
+		-DICINGA2_RUNDIR=/run
 		-DINSTALL_SYSTEMD_SERVICE_AND_INITSCRIPT=yes
+		-DUSE_SYSTEMD=$(usex systemd ON OFF)
 		-DLOGROTATE_HAS_SU=ON
 	)
 	# default to off if minimal, allow the flags to be set otherwise
@@ -98,16 +95,6 @@ src_configure() {
 			-DICINGA2_LTO_BUILD=OFF
 		)
 	fi
-	# STUDIO
-	if use studio; then
-		mycmakeargs+=(
-			-DICINGA2_WITH_STUDIO=ON
-		)
-	else
-		mycmakeargs+=(
-			-DICINGA2_WITH_STUDIO=OFF
-		)
-	fi
 
 	cmake-utils_src_configure
 }
@@ -120,14 +107,21 @@ src_install() {
 
 	einstalldocs
 
-	newinitd "${FILESDIR}"/icinga2.initd icinga2
+	newinitd "${FILESDIR}"/icinga2.initd-3 icinga2
 
 	if use mysql ; then
 		docinto schema
 		newdoc "${WORKDIR}"/icinga2-${PV}/lib/db_ido_mysql/schema/mysql.sql mysql.sql
 		docinto schema/upgrade
 		dodoc "${WORKDIR}"/icinga2-${PV}/lib/db_ido_mysql/schema/upgrade/*
-	elif use postgres ; then
+	fi
+	if use mariadb ; then  # same as mysql
+		docinto schema
+		newdoc "${WORKDIR}"/icinga2-${PV}/lib/db_ido_mysql/schema/mysql.sql mysql.sql
+		docinto schema/upgrade
+		dodoc "${WORKDIR}"/icinga2-${PV}/lib/db_ido_mysql/schema/upgrade/*
+	fi
+	if use postgres ; then
 		docinto schema
 		newdoc "${WORKDIR}"/icinga2-${PV}/lib/db_ido_pgsql/schema/pgsql.sql pgsql.sql
 		docinto schema/upgrade
@@ -140,7 +134,7 @@ src_install() {
 	keepdir /var/lib/icinga2/api/log
 	keepdir /var/spool/icinga2/perfdata
 
-	rm -r "${D}/var/run" || die "failed to remove /var/run"
+	rm -r "${D}/run" || die "failed to remove /run"
 	rm -r "${D}/var/cache" || die "failed to remove /var/cache"
 
 	fowners root:icinga /etc/icinga2
@@ -171,6 +165,6 @@ src_install() {
 pkg_postinst() {
 	if [[ ${PV} != 9999 && -n ${REPLACING_VERSIONS} && ${REPLACING_VERSIONS} != ${PV} ]]; then
 		elog "DB IDO schema upgrade may be required required.
-		http://docs.icinga.org/icinga2/snapshot/doc/module/icinga2/chapter/upgrading-icinga-2"
+		https://www.icinga.com/docs/icinga2/latest/doc/16-upgrading-icinga-2/"
 	fi
 }

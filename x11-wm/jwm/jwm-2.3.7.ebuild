@@ -10,7 +10,7 @@ SRC_URI="http://joewing.net/projects/${PN}/releases/${P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~hppa ~ppc ~x86 ~x86-fbsd"
+KEYWORDS="~amd64 ~hppa ~ppc ~x86"
 IUSE="bidi cairo debug iconv jpeg nls png truetype xinerama xpm"
 
 RDEPEND="dev-libs/expat
@@ -33,9 +33,7 @@ RDEPEND="dev-libs/expat
 	xinerama? ( x11-libs/libXinerama )
 	xpm? ( x11-libs/libXpm )"
 DEPEND="${RDEPEND}
-	x11-proto/xproto
-	x11-proto/xextproto
-	xinerama? ( x11-proto/xineramaproto )"
+	x11-base/xorg-proto"
 
 src_configure() {
 	econf \

@@ -1,7 +1,7 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit autotools flag-o-matic readme.gentoo-r1 toolchain-funcs wxwidgets
 
@@ -9,22 +9,18 @@ DESCRIPTION="Command-line driven interactive plotting program"
 HOMEPAGE="http://www.gnuplot.info/"
 
 if [[ -z ${PV%%*9999} ]]; then
-	inherit cvs
-	ECVS_SERVER="gnuplot.cvs.sourceforge.net:/cvsroot/gnuplot"
-	ECVS_MODULE="gnuplot"
-	ECVS_BRANCH="branch-5-2-stable"
-	ECVS_USER="anonymous"
-	ECVS_CVS_OPTIONS="-dP"
+	inherit git-r3
+	EGIT_REPO_URI="https://git.code.sf.net/p/gnuplot/gnuplot-main"
+	EGIT_BRANCH="branch-5-2-stable"
 	MY_P="${PN}"
-	SRC_URI=""
-	KEYWORDS=""
+	EGIT_CHECKOUT_DIR="${WORKDIR}/${MY_P}"
 else
 	MY_P="${P/_/.}"
 	SRC_URI="mirror://sourceforge/gnuplot/${MY_P}.tar.gz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sparc ~x86 ~ppc-aix ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sparc ~x86 ~ppc-aix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
 fi
 
-LICENSE="gnuplot bitmap? ( free-noncomm )"
+LICENSE="gnuplot"
 SLOT="0"
 IUSE="aqua bitmap cairo compat doc examples +gd ggi latex libcaca libcerf lua qt5 readline svga wxwidgets X"
 
@@ -41,7 +37,8 @@ RDEPEND="
 			>=dev-texlive/texlive-latexrecommended-2008-r2 ) )
 	libcaca? ( media-libs/libcaca )
 	lua? ( dev-lang/lua:0 )
-	qt5? ( dev-qt/qtcore:5=
+	qt5? (
+		dev-qt/qtcore:5=
 		dev-qt/qtgui:5=
 		dev-qt/qtnetwork:5=
 		dev-qt/qtprintsupport:5=
@@ -56,7 +53,10 @@ RDEPEND="
 		x11-libs/pango
 		x11-libs/gtk+:2 )
 	X? ( x11-libs/libXaw )"
-DEPEND="${RDEPEND}
+
+DEPEND="${RDEPEND}"
+
+BDEPEND="
 	virtual/pkgconfig
 	doc? (
 		virtual/latex-base
@@ -93,10 +93,10 @@ src_prepare() {
 		SVGA console graphics, gnuplot needs to be set up as setuid root.
 		Please note that this is usually considered to be a security hazard.
 		As root, manually "chmod u+s /usr/bin/gnuplot".'
-	use gd && DOC_CONTENTS+='\n\nFor font support in png/jpeg/gif output,
+	use gd && DOC_CONTENTS+="\n\nFor font support in png/jpeg/gif output,
 		you may have to set the GDFONTPATH and GNUPLOT_DEFAULT_GDFONT
 		environment variables. See the FAQ file in /usr/share/doc/${PF}/
-		for more information.'
+		for more information."
 
 	eautoreconf
 
@@ -116,7 +116,7 @@ src_configure() {
 
 	if use wxwidgets; then
 		WX_GTK_VER="3.0"
-		need-wxwidgets unicode
+		setup-wxwidgets
 	fi
 
 	tc-export CC CXX			#453174
@@ -160,10 +160,10 @@ src_compile() {
 	if use doc; then
 		# Avoid sandbox violation in epstopdf/ghostscript
 		addpredict /var/cache/fontconfig
-		if use cairo; then
+		if use cairo && use gd; then
 			emake -C docs pdf
 		else
-			ewarn "Cannot build figures unless cairo is enabled."
+			ewarn "Cannot build figures unless cairo and gd are enabled."
 			ewarn "Building documentation without figures."
 			emake -C docs pdf_nofig
 			mv docs/nofigures.pdf docs/gnuplot.pdf || die
@@ -172,7 +172,7 @@ src_compile() {
 	fi
 }
 
-src_install () {
+src_install() {
 	emake DESTDIR="${D}" install
 
 	dodoc BUGS ChangeLog NEWS PGPKEYS PORTING README* RELEASE_NOTES TODO
@@ -185,8 +185,8 @@ src_install () {
 		# Demo files
 		insinto /usr/share/${PN}/${GP_VERSION}
 		doins -r demo
-		rm -f "${ED%/}"/usr/share/${PN}/${GP_VERSION}/demo/Makefile*
-		rm -f "${ED%/}"/usr/share/${PN}/${GP_VERSION}/demo/binary*
+		rm -f "${ED}"/usr/share/${PN}/${GP_VERSION}/demo/Makefile*
+		rm -f "${ED}"/usr/share/${PN}/${GP_VERSION}/demo/binary*
 	fi
 
 	if use doc; then

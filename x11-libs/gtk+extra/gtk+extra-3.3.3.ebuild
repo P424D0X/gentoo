@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -12,6 +12,7 @@ LICENSE="FDL-1.1 LGPL-2"
 SLOT="0"
 KEYWORDS="amd64 ~ia64 ~ppc ~ppc64 ~sparc x86"
 IUSE="+introspection static-libs test"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	>=x11-libs/gtk+-2.12.0:2
@@ -19,6 +20,7 @@ RDEPEND="
 	introspection? ( >=dev-libs/gobject-introspection-0.6.14:= )
 "
 DEPEND="${RDEPEND}
+	dev-util/glib-utils
 	virtual/pkgconfig
 "
 # dev-libs/gobject-introspection-common needed for eautoreconf

@@ -3,7 +3,7 @@
 
 EAPI=5
 
-USE_RUBY="ruby22 ruby23"
+USE_RUBY="ruby23 ruby24"
 
 RUBY_FAKEGEM_RECIPE_TEST="rspec"
 RUBY_FAKEGEM_TASK_DOC=""
@@ -17,7 +17,7 @@ HOMEPAGE="https://github.com/jfelchner/ruby-progressbar"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="amd64 ~hppa ppc ppc64 x86 ~x86-fbsd"
+KEYWORDS="amd64 ~hppa ppc ppc64 x86"
 
 IUSE="test"
 

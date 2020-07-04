@@ -1,8 +1,8 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
-USE_RUBY="ruby22 ruby23 ruby24 ruby25"
+USE_RUBY="ruby23 ruby24 ruby25 ruby26"
 
 inherit eutils ruby-ng
 
@@ -33,11 +33,11 @@ each_ruby_configure() {
 }
 
 each_ruby_compile() {
-	emake V=1 || die "emake failed"
+	emake V=1
 }
 
 each_ruby_install() {
-	emake V=1 DESTDIR="${D}" install || die "einstall failed"
+	emake V=1 DESTDIR="${D}" install
 }
 
 all_ruby_install() {
@@ -48,7 +48,7 @@ all_ruby_install() {
 	doins sample/*
 }
 
-pkg_postinst () {
+pkg_postinst() {
 	if ! use image || ! use mixer || ! use truetype || ! use mpeg || ! use sge; then
 		echo ""
 		ewarn "If any of the following packages are not installed, Ruby/SDL"

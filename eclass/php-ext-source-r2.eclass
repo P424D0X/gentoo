@@ -1,6 +1,7 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# @DEAD
 # @ECLASS: php-ext-source-r2.eclass
 # @MAINTAINER:
 # Gentoo PHP team <php-bugs@gentoo.org>
@@ -10,6 +11,7 @@
 # Author: Luca Longinotti <chtekk@gentoo.org>
 # Author: Jakub Moc <jakub@gentoo.org> (documentation)
 # Author: Ole Markus With <olemarkus@gentoo.org>
+# @SUPPORTED_EAPIS: 4 5
 # @BLURB: A unified interface for compiling and installing standalone PHP extensions.
 # @DESCRIPTION:
 # This eclass provides a unified interface for compiling and installing standalone

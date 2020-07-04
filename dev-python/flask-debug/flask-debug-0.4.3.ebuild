@@ -1,13 +1,13 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-PYTHON_COMPAT=( python{2_7,3_4,3_5} )
+EAPI=7
+PYTHON_COMPAT=( pypy3 python3_{6,7} )
 
 inherit distutils-r1
 
 MY_PN="Flask-Debug"
-DESCRIPTION="Configures Flask applications in a canonical way"
+DESCRIPTION="Flask extension that displays various debugging insights during development"
 HOMEPAGE="https://github.com/mbr/Flask-Debug"
 # PyPI tarballs don't include tests
 # https://github.com/mbr/Flask-Debug/pull/2
@@ -17,19 +17,20 @@ LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="doc test"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	dev-python/flask[${PYTHON_USEDEP}]
 	dev-python/inflection[${PYTHON_USEDEP}]
+	dev-python/jinja[${PYTHON_USEDEP}]
 "
 DEPEND="
 	dev-python/setuptools[${PYTHON_USEDEP}]
-	test? (
-		dev-python/pytest-runner[${PYTHON_USEDEP}]
-		dev-python/pytest[${PYTHON_USEDEP}]
-		${RDEPEND}
-	)
 	doc? ( dev-python/sphinx[${PYTHON_USEDEP}] )
+	test? (
+		${RDEPEND}
+		dev-python/pytest[${PYTHON_USEDEP}]
+	)
 "
 
 S="${WORKDIR}/${MY_PN}-${PV}"
@@ -40,14 +41,12 @@ python_prepare_all() {
 }
 
 python_compile_all() {
-	use doc && emake -C docs html
+	if use doc; then
+		sphinx-build docs docs/_build/html || die
+		HTML_DOCS=( docs/_build/html/. )
+	fi
 }
 
 python_test() {
-	py.test || die "Tests failed with ${EPYTHON}"
-}
-
-python_install_all() {
-	use doc && local HTML_DOCS=( docs/_build/html/. )
-	distutils-r1_python_install_all
+	pytest -vv || die "Tests failed with ${EPYTHON}"
 }

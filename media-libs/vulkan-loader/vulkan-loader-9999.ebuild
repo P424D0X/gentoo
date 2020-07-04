@@ -1,61 +1,66 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-PYTHON_COMPAT=( python3_{4,5,6} )
+EAPI=7
 
-if [[ "${PV}" == "9999" ]]; then
-	EGIT_REPO_URI="https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers.git"
+MY_PN=Vulkan-Loader
+CMAKE_ECLASS="cmake"
+PYTHON_COMPAT=( python3_{6,7,8} )
+inherit flag-o-matic cmake-multilib python-any-r1 toolchain-funcs
+
+if [[ ${PV} == *9999* ]]; then
+	EGIT_REPO_URI="https://github.com/KhronosGroup/${MY_PN}.git"
+	EGIT_SUBMODULES=()
 	inherit git-r3
 else
-	KEYWORDS="~amd64"
-	SRC_URI="https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/archive/sdk-${PV}.tar.gz -> ${P}.tar.gz"
-	S="${WORKDIR}/Vulkan-LoaderAndValidationLayers-sdk-${PV}"
+	SRC_URI="https://github.com/KhronosGroup/${MY_PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+	KEYWORDS="~amd64 ~ppc64 ~x86"
+	S="${WORKDIR}"/${MY_PN}-${PV}
 fi
 
-inherit python-any-r1 cmake-multilib
-
 DESCRIPTION="Vulkan Installable Client Driver (ICD) Loader"
-HOMEPAGE="https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers"
+HOMEPAGE="https://github.com/KhronosGroup/Vulkan-Loader"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-IUSE="demos layers wayland X"
-REQUIRED_USE="demos? ( X )"
+IUSE="layers wayland X"
 
-RDEPEND=""
+BDEPEND=">=dev-util/cmake-3.10.2"
 DEPEND="${PYTHON_DEPS}
-	demos? ( dev-util/glslang:=[${MULTILIB_USEDEP}] )
-	layers? (
-			dev-util/glslang:=[${MULTILIB_USEDEP}]
-			>=dev-util/spirv-tools-2018.2-r1:=[${MULTILIB_USEDEP}]
-		)
+	>=dev-util/vulkan-headers-${PV}
 	wayland? ( dev-libs/wayland:=[${MULTILIB_USEDEP}] )
 	X? (
 		x11-libs/libX11:=[${MULTILIB_USEDEP}]
 		x11-libs/libXrandr:=[${MULTILIB_USEDEP}]
-	)"
-
-PATCHES=( "${FILESDIR}/${PN}-Use-a-file-to-get-the-spirv-tools-commit-ID.patch" )
+	)
+"
+PDEPEND="layers? ( media-libs/vulkan-layers:=[${MULTILIB_USEDEP}] )"
 
 multilib_src_configure() {
+	# Integrated clang assembler doesn't work with x86 - Bug #698164
+	if tc-is-clang && [[ ${ABI} == x86 ]]; then
+		append-cflags -fno-integrated-as
+	fi
+
 	local mycmakeargs=(
-		-DCMAKE_SKIP_RPATH=True
-		-DBUILD_TESTS=False
-		-DBUILD_LAYERS=$(usex layers)
-		-DBUILD_DEMOS=$(usex demos)
-		-DBUILD_VKJSON=False
-		-DBUILD_LOADER=True
-		-DBUILD_WSI_MIR_SUPPORT=False
+		-DCMAKE_SKIP_RPATH=ON
+		-DBUILD_TESTS=OFF
+		-DBUILD_LOADER=ON
 		-DBUILD_WSI_WAYLAND_SUPPORT=$(usex wayland)
 		-DBUILD_WSI_XCB_SUPPORT=$(usex X)
 		-DBUILD_WSI_XLIB_SUPPORT=$(usex X)
+		-DVULKAN_HEADERS_INSTALL_DIR="${EPREFIX}/usr"
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 
 multilib_src_install() {
 	keepdir /etc/vulkan/icd.d
 
-	cmake-utils_src_install
+	cmake_src_install
+}
+
+pkg_postinst() {
+	einfo "USE=demos has been dropped as per upstream packaging"
+	einfo "vulkaninfo is now available in the dev-util/vulkan-tools package"
 }

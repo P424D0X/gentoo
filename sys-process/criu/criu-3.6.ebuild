@@ -1,11 +1,11 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 PYTHON_COMPAT=( python2_7 )
 
-inherit eutils toolchain-funcs linux-info flag-o-matic python-r1 python-utils-r1
+inherit eutils toolchain-funcs linux-info flag-o-matic python-r1
 
 DESCRIPTION="utility to checkpoint/restore a process tree"
 HOMEPAGE="http://criu.org/"
@@ -97,6 +97,7 @@ src_install() {
 		LOGROTATEDIR="${EPREFIX}"/etc/logrotate.d \
 		DESTDIR="${D}" \
 		LIBDIR="${EPREFIX}/usr/$(get_libdir)" \
+		WERROR=0 \
 		install
 
 	dodoc CREDITS README.md

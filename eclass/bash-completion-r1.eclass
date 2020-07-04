@@ -4,6 +4,7 @@
 # @ECLASS: bash-completion-r1.eclass
 # @MAINTAINER:
 # mgorny@gentoo.org
+# @SUPPORTED_EAPIS: 0 1 2 3 4 5 6 7
 # @BLURB: A few quick functions to install bash-completion files
 # @EXAMPLE:
 #
@@ -90,7 +91,7 @@ get_bashhelpersdir() {
 }
 
 # @FUNCTION: dobashcomp
-# @USAGE: file [...]
+# @USAGE: <file> [...]
 # @DESCRIPTION:
 # Install bash-completion files passed as args. Has EAPI-dependant failure
 # behavior (like doins).
@@ -98,13 +99,14 @@ dobashcomp() {
 	debug-print-function ${FUNCNAME} "${@}"
 
 	(
+		insopts -m 0644
 		insinto "$(_bash-completion-r1_get_bashcompdir)"
 		doins "${@}"
 	)
 }
 
 # @FUNCTION: newbashcomp
-# @USAGE: file newname
+# @USAGE: <file> <newname>
 # @DESCRIPTION:
 # Install bash-completion file under a new name. Has EAPI-dependant failure
 # behavior (like newins).
@@ -112,6 +114,7 @@ newbashcomp() {
 	debug-print-function ${FUNCNAME} "${@}"
 
 	(
+		insopts -m 0644
 		insinto "$(_bash-completion-r1_get_bashcompdir)"
 		newins "${@}"
 	)

@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -13,6 +13,7 @@ LICENSE="MPL-2.0"
 KEYWORDS="amd64 x86"
 
 IUSE="modperl extras graphviz mysql postgres sqlite test"
+RESTRICT="!test? ( test )"
 REQUIRED_USE=" || ( mysql postgres sqlite )"
 
 COMMON_DEPS="
@@ -75,6 +76,10 @@ RDEPEND="
 want_apache modperl
 need_httpd_cgi
 
+PATCHES=(
+	"${FILESDIR}/${PN}"-5.0.3-leftbrace.patch
+)
+
 pkg_setup() {
 	depend.apache_pkg_setup modperl
 	webapp_pkg_setup
@@ -86,14 +91,15 @@ src_prepare() {
 
 	# Remove bundled perl modules
 	rm -r lib/ || die
-	eapply_user
+
+	default
 }
 
 src_test() {
-	perl runtests.pl || die
+	perl -I. runtests.pl || die
 }
 
-src_install () {
+src_install() {
 	webapp_src_preinst
 
 	insinto "${MY_HTDOCSDIR}"

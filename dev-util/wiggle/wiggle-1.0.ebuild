@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -6,13 +6,14 @@ EAPI=6
 inherit fixheadtails toolchain-funcs
 
 DESCRIPTION="tool for applying patches that patch cannot apply because of conflicting changes"
-HOMEPAGE="http://neil.brown.name/wiggle http://neil.brown.name/git?p=wiggle"
-SRC_URI="http://neil.brown.name/${PN}/${P}.tar.gz"
+HOMEPAGE="https://neil.brown.name/wiggle https://neil.brown.name/git?p=wiggle"
+SRC_URI="https://neil.brown.name/${PN}/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~ppc ~x86 ~amd64-linux ~x86-linux"
 IUSE="test"
+RESTRICT="!test? ( test )"
 
 # The 'p' tool does support bitkeeper, but I'm against just dumping it in here
 # due to it's size.  I've explictly listed every other dependancy here due to

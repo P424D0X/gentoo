@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -10,11 +10,11 @@ SRC_URI="http://download.savannah.gnu.org/releases/${PN}/${P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~hppa ~ppc ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
+KEYWORDS="amd64 ~hppa ~ppc x86 ~amd64-linux ~x86-linux"
 IUSE="debug emacs +history sloppy +xft +xrandr"
 
 RDEPEND="
-	emacs? ( virtual/emacs )
+	emacs? ( >=app-editors/emacs-23.1:* )
 	history? ( sys-libs/readline:= )
 	xft? ( x11-libs/libXft )
 	xrandr? ( x11-libs/libXrandr )
@@ -24,8 +24,7 @@ RDEPEND="
 DEPEND="
 	${RDEPEND}
 	virtual/pkgconfig
-	x11-proto/randrproto
-	x11-proto/xproto
+	x11-base/xorg-proto
 "
 
 SITEFILE=50ratpoison-gentoo.el

@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -14,7 +14,7 @@ SRC_URI="http://icculus.org/quake2/files/${MY_P}.tar.gz
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86 ~x86-fbsd"
+KEYWORDS="~amd64 ~x86"
 IUSE="aalib alsa cdinstall dedicated demo ipv6 joystick opengl qmax rogue sdl X xatrix"
 
 UIDEPEND="aalib? ( media-libs/aalib )
@@ -29,9 +29,9 @@ RDEPEND="${UIDEPEND}
 	cdinstall? ( games-fps/quake2-data )
 	demo? ( games-fps/quake2-demodata )"
 DEPEND="${UIDEPEND}
-	X? ( x11-proto/xf86dgaproto )
-	rogue? ( || ( sys-freebsd/freebsd-ubin app-arch/sharutils ) )
-	xatrix? ( || ( sys-freebsd/freebsd-ubin app-arch/sharutils ) )"
+	X? ( x11-base/xorg-proto )
+	rogue? ( app-arch/sharutils )
+	xatrix? ( app-arch/sharutils )"
 
 S=${WORKDIR}/${MY_P}
 

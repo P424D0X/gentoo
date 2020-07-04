@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -6,7 +6,7 @@ EAPI=6
 inherit autotools eutils
 
 DESCRIPTION="A GUI for cupsd"
-HOMEPAGE="http://gtklp.sirtobi.com/"
+HOMEPAGE="https://gtklp.sirtobi.com/"
 SRC_URI="mirror://sourceforge/gtklp/${P}.src.tar.gz
 	mirror://sourceforge/gtklp/logo.xpm.gz -> gtklp-logo.xpm.gz"
 
@@ -41,7 +41,7 @@ src_configure() {
 		--enable-forte #369003
 }
 
-src_install () {
+src_install() {
 	default
 
 	doicon "${WORKDIR}"/gtklp-logo.xpm

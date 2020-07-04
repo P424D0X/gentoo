@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -12,7 +12,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-RDEPEND="
+RDEPEND="!net-im/zoom
 	media-libs/fontconfig
 	media-libs/libpng:0
 	>=media-libs/t1lib-5
@@ -20,7 +20,7 @@ RDEPEND="
 	x11-libs/libXft"
 DEPEND="${RDEPEND}
 	dev-lang/perl
-	x11-proto/xextproto"
+	x11-base/xorg-proto"
 
 PATCHES=( "${FILESDIR}"/${P}-gcc7.patch )
 

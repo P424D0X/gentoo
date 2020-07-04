@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -14,12 +14,13 @@ MODULE_VERSION="4.03_06"
 inherit eutils perl-module
 
 DESCRIPTION="Concurrent Multi-Server Terminal Access"
-HOMEPAGE="http://clusterssh.sourceforge.net"
+HOMEPAGE="https://github.com/duncs/clusterssh"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 IUSE="test"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	dev-perl/Config-Simple

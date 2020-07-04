@@ -1,10 +1,10 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=0
+EAPI=6
 
 DESCRIPTION="Manages the /usr/bin/sndpeek symlink"
-HOMEPAGE="https://www.gentoo.org/"
+HOMEPAGE="https://wiki.gentoo.org/wiki/No_homepage"
 SRC_URI="mirror://gentoo/sndpeek.eselect-${PVR}.bz2"
 
 LICENSE="GPL-2"
@@ -14,7 +14,9 @@ IUSE=""
 
 RDEPEND=">=app-admin/eselect-1.2.3"
 
+S="${WORKDIR}"
+
 src_install() {
 	insinto /usr/share/eselect/modules
-	newins "${WORKDIR}/sndpeek.eselect-${PVR}" sndpeek.eselect || die
+	newins "${WORKDIR}/sndpeek.eselect-${PVR}" sndpeek.eselect
 }

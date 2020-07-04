@@ -1,18 +1,18 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
 inherit eutils toolchain-funcs
 
 DESCRIPTION="Image viewers for the framebuffer console (fbi) and X11 (ida)"
-HOMEPAGE="http://www.kraxel.org/blog/linux/fbida/"
+HOMEPAGE="https://www.kraxel.org/blog/linux/fbida/"
 SRC_URI="
-	http://www.kraxel.org/releases/${PN}/${P}.tar.gz
+	https://www.kraxel.org/releases/${PN}/${P}.tar.gz
 	mirror://gentoo/ida.png.bz2
 "
 LICENSE="GPL-2 IJG"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ppc ppc64 ~sh sparc x86"
+KEYWORDS="~alpha amd64 arm hppa ppc ppc64 sparc x86"
 IUSE="curl fbcon ghostscript +gif lirc +png scanner +tiff X +webp"
 REQUIRED_USE="
 	ghostscript? ( tiff )
@@ -25,7 +25,7 @@ CDEPEND="
 	>=media-libs/freetype-2.0
 	media-libs/libepoxy
 	media-libs/libexif
-	media-libs/mesa
+	media-libs/mesa[X(+)]
 	virtual/jpeg:*
 	virtual/ttf-fonts
 	x11-libs/cairo[opengl]

@@ -1,7 +1,7 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit flag-o-matic
 SRC_URI="https://dev.gentoo.org/~aidecoe/distfiles/${CATEGORY}/${PN}/gentoo-logo.png"
@@ -21,7 +21,7 @@ HOMEPAGE="https://cgit.freedesktop.org/plymouth/"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="debug gdm +gtk +libkms +pango static-libs"
+IUSE="debug gdm +gtk +libkms +pango static-libs +udev"
 
 CDEPEND="
 	>=media-libs/libpng-1.2.16:=
@@ -41,7 +41,7 @@ DEPEND="${CDEPEND}
 "
 # Block due bug #383067
 RDEPEND="${CDEPEND}
-	virtual/udev
+	udev? ( virtual/udev )
 	!<sys-kernel/dracut-0.37-r3
 "
 
@@ -75,6 +75,7 @@ src_configure() {
 		$(use_enable libkms drm)
 		$(use_enable pango)
 		$(use_enable gdm gdm-transition)
+		$(use_with udev)
 	)
 	econf "${myconf[@]}"
 }
@@ -86,9 +87,9 @@ src_install() {
 	newins "${DISTDIR}"/gentoo-logo.png bizcom.png
 
 	# Install compatibility symlinks as some rdeps hardcode the paths
-	dosym /usr/bin/plymouth /bin/plymouth
-	dosym /usr/sbin/plymouth-set-default-theme /sbin/plymouth-set-default-theme
-	dosym /usr/sbin/plymouthd /sbin/plymouthd
+	dosym ../usr/bin/plymouth /bin/plymouth
+	dosym ..../usr/sbin/plymouth-set-default-theme /sbin/plymouth-set-default-theme
+	dosym ../usr/sbin/plymouthd /sbin/plymouthd
 
 	readme.gentoo_create_doc
 

@@ -1,37 +1,44 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python3_{6,7,8} )
 
-inherit autotools eutils multilib user python-single-r1
-
-MY_P=${P/\./-}
-MY_P=${MY_P/./-R}
-S=${WORKDIR}/${MY_P}
+inherit autotools eutils multilib user python-single-r1 udev
 
 if [[ ${PV} == "9999" ]] ; then
-	EGIT_REPO_URI="https://www.kismetwireless.net/${PN}.git"
-	SRC_URI=""
+	EGIT_REPO_URI="https://www.kismetwireless.net/git/${PN}.git"
 	inherit git-r3
-	KEYWORDS=""
 	RESTRICT="strip"
 else
-	SRC_URI="http://www.kismetwireless.net/code/${MY_P}.tar.xz"
+	MY_P=${P/\./-}
+	MY_P=${MY_P/_beta/-BETA}
+	MY_P=${MY_P/./-R}
+	S=${WORKDIR}/${MY_P/BETA/beta}
+
+	#normally we want an official release
+	SRC_URI="https://www.kismetwireless.net/code/${MY_P}.tar.xz"
+
+	#but sometimes we want a git commit
+	#COMMIT="9ca7e469cf115469f392db7436816151867e1654"
+	#SRC_URI="https://github.com/kismetwireless/kismet/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
+	#S="${WORKDIR}/${PN}-${COMMIT}"
+
 	KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~x86"
 fi
 
 DESCRIPTION="IEEE 802.11 wireless LAN sniffer"
-HOMEPAGE="http://www.kismetwireless.net/"
+HOMEPAGE="https://www.kismetwireless.net"
 
 LICENSE="GPL-2"
 SLOT="0/${PV}"
-IUSE="+pcre speech selinux +suid"
+IUSE="libusb lm-sensors networkmanager +pcre rtlsdr selinux +suid ubertooth udev"
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 CDEPEND="
 	${PYTHON_DEPS}
-	net-misc/networkmanager:=
+	networkmanager? ( net-misc/networkmanager:= )
 	dev-libs/glib:=
 	dev-libs/elfutils:=
 	sys-libs/zlib:=
@@ -41,23 +48,36 @@ CDEPEND="
 			dev-libs/libnl:3
 			net-libs/libpcap
 			)
+	libusb? ( virtual/libusb:1 )
 	dev-libs/protobuf-c:=
+	dev-libs/protobuf:=
+	$(python_gen_cond_dep '
+		dev-python/protobuf-python[${PYTHON_MULTI_USEDEP}]
+	')
 	sys-libs/ncurses:=
+	lm-sensors? ( sys-apps/lm-sensors )
 	pcre? ( dev-libs/libpcre )
 	suid? ( sys-libs/libcap )
-	!arm? ( speech? ( app-accessibility/flite ) )
+	ubertooth? ( net-wireless/ubertooth:= )
 	"
-	#plugin-btscan? ( net-wireless/bluez )
-	#plugin-dot15d4? ( virtual/libusb:0 )
-	#plugin-spectools? ( net-wireless/spectools )
 
 DEPEND="${CDEPEND}
 	virtual/pkgconfig
 "
 
 RDEPEND="${CDEPEND}
+	$(python_gen_cond_dep '
+		dev-python/pyserial[${PYTHON_MULTI_USEDEP}]
+	')
 	selinux? ( sec-policy/selinux-kismet )
 "
+PDEPEND="
+	rtlsdr? (
+		$(python_gen_cond_dep '
+			dev-python/numpy[${PYTHON_MULTI_USEDEP}]
+		')
+		net-wireless/rtl-sdr
+	)"
 
 src_prepare() {
 	sed -i -e "s:^\(logtemplate\)=\(.*\):\1=/tmp/\2:" \
@@ -68,95 +88,39 @@ src_prepare() {
 		-e 's|@mangrp@|root|g' Makefile.in
 
 	eapply_user
-	eautoreconf
+
+	#just use set to fix setup.py
+	find . -name "Makefile.in" -exec sed -i 's#setup.py install#setup.py install --root=$(DESTDIR)#' {} + || die
+	find . -name "Makefile" -exec sed -i 's#setup.py install#setup.py install --root=$(DESTDIR)#' {} + || die
+
+	if [ "${PV}" = "9999" ]; then
+		eautoreconf
+	fi
 }
 
 src_configure() {
 	econf \
-		$(use_enable pcre)
-		#--disable-python-tools
-}
-
-src_compile() {
-	emake
-
-	#if use plugin-autowep; then
-	#	cd "${S}"/restricted-plugin-autowep
-	#	KIS_SRC_DIR="${S}" emake
-	#fi
-	#if use plugin-btscan; then
-	#	cd "${S}"/plugin-btscan
-	#	KIS_SRC_DIR="${S}" emake
-	#fi
-	#if use plugin-dot15d4; then
-	#	cd "${S}"/plugin-dot15d4
-	#	KIS_SRC_DIR="${S}" emake
-	#fi
-	#if use plugin-ptw; then
-	#	cd "${S}"/restricted-plugin-ptw
-	#	KIS_SRC_DIR="${S}" emake
-	#fi
-	#if use plugin-spectools; then
-	#	cd "${S}"/plugin-spectools
-	#	KIS_SRC_DIR="${S}" emake
-	#fi
-	#if use plugin-syslog; then
-	#	cd "${S}"/plugin-syslog
-	#	KIS_SRC_DIR="${S}" emake
-	#fi
+		$(use_enable libusb libusb) \
+		$(use_enable pcre) \
+		$(use_enable lm-sensors lmsensors) \
+		$(use_enable networkmanager libnm) \
+		$(use_enable ubertooth) \
+		--sysconfdir=/etc/kismet \
+		--disable-optimization
 }
 
 src_install() {
-	#if use plugin-autowep; then
-	#	cd "${S}"/restricted-plugin-autowep
-	#	KIS_SRC_DIR="${S}" emake DESTDIR="${ED}" LIBDIR="$(get_libdir)" install
-	#fi
-	#if use plugin-btscan; then
-	#	cd "${S}"/plugin-btscan
-	#	KIS_SRC_DIR="${S}" emake DESTDIR="${ED}" LIBDIR="$(get_libdir)" install
-	#fi
-	#if use plugin-dot15d4; then
-	#	cd "${S}"/plugin-dot15d4
-	#	KIS_SRC_DIR="${S}" emake DESTDIR="${ED}" LIBDIR="$(get_libdir)" install
-	#fi
-	#if use plugin-ptw; then
-	#	cd "${S}"/restricted-plugin-ptw
-	#	KIS_SRC_DIR="${S}" emake DESTDIR="${ED}" LIBDIR="$(get_libdir)" install
-	#fi
-	#if use plugin-spectools; then
-	#	cd "${S}"/plugin-spectools
-	#	KIS_SRC_DIR="${S}" emake DESTDIR="${ED}" LIBDIR="$(get_libdir)" install
-	#fi
-	#if use plugin-syslog; then
-	#	cd "${S}"/plugin-syslog
-	#	KIS_SRC_DIR="${S}" emake DESTDIR="${ED}" LIBDIR="$(get_libdir)" install
-	#fi
-	#if use ruby; then
-	#	cd "${S}"/ruby
-	#	dobin *.rb
-	#fi
-
-	#cd "${S}"
 	emake DESTDIR="${D}" commoninstall
+	python_optimize
 	emake DESTDIR="${D}" forceconfigs
+	use udev && udev_dorules packaging/udev/*.rules
 
-	##dragorn would prefer I set fire to my head than do this, but it works
-	##all external kismet plugins (read: kismet-ubertooth) must be rebuilt when kismet is
-	##is there an automatic way to force this?
-	# install headers for external plugins
-	insinto /usr/include/kismet
-	doins *.h
+	insinto /usr/share/${PN}
 	doins Makefile.inc
-	#todo write a plugin finder that tells you what needs to be rebuilt when kismet is updated, etc
 
-	#dodoc CHANGELOG RELEASENOTES.txt README* docs/DEVEL.client docs/README.newcore
 	dodoc CHANGELOG README*
-	newinitd "${FILESDIR}"/${PN}.initd kismet
-	newconfd "${FILESDIR}"/${PN}.confd kismet
-
-	#if use suid; then
-	#	dobin kismet_capture
-	#fi
+	newinitd "${FILESDIR}"/${PN}.initd-r3 kismet
+	newconfd "${FILESDIR}"/${PN}.confd-r2 kismet
 }
 
 pkg_preinst() {
@@ -178,5 +142,35 @@ pkg_preinst() {
 		ewarn "It is highly discouraged to run a sniffer as root,"
 		ewarn "Please consider enabling the suid use flag and adding"
 		ewarn "your user to the kismet group."
+	fi
+}
+
+migrate_config() {
+	einfo "Kismet Configuration files are now read from /etc/kismet/"
+	ewarn "Please keep user specific settings in /etc/kismet/kismet_site.conf"
+	if [ -n "$(ls ${EROOT}/etc/kismet_*.conf 2> /dev/null)" ]; then
+		ewarn "Files at /etc/kismet_*.conf will not be read and should be removed"
+	fi
+	if [ -f "${EROOT}/etc/kismet_site.conf" ] && [ ! -f "${EROOT}/etc/kismet/kismet_site.conf" ]; then
+		mv /etc/kismet_site.conf /etc/kismet/kismet_site.conf || die "Failed to migrate kismet_site.conf to new location"
+		ewarn "Your /etc/kismet_site.conf file has been automatically moved to /etc/kismet/kismet_site.conf"
+	elif [ -f "${EROOT}/etc/kismet_site.conf" ] && [ -f "${EROOT}/etc/kismet/kismet_site.conf" ]; then
+		ewarn "Both /etc/kismet_site.conf and /etc/kismet/kismet_site.conf exist, please migrate needed bits"
+		ewarn "into /etc/kismet/kismet_site.conf and remove /etc/kismet_site.conf"
+	fi
+}
+
+pkg_postinst() {
+	if [ -n "${REPLACING_VERSIONS}" ]; then
+		for v in ${REPLACING_VERSIONS}; do
+			if ver_test ${v} -lt 2019.07.2 ; then
+				migrate_config
+				break
+			fi
+			if ver_test ${v} -eq 9999 ; then
+				migrate_config
+				break
+			fi
+		done
 	fi
 }

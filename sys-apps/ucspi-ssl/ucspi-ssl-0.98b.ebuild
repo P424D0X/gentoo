@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -11,11 +11,12 @@ SRC_URI="http://www.fehcom.de/ipnet/ucspi-ssl/${P}.tgz"
 
 LICENSE="public-domain"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~ppc ~ppc64 ~s390 ~sparc ~x86"
 IUSE="perl"
 
 DEPEND="
 	dev-libs/openssl:0=
+	net-libs/libnsl
 	perl? ( dev-lang/perl:= )
 "
 RDEPEND="
@@ -51,6 +52,6 @@ src_compile() {
 src_install() {
 	dodoc doc/*
 	doman man/*.*
-	dobin src/https\@ src/sslcat src/sslclient src/sslconnect src/sslprint src/sslserver || die
+	dobin src/https\@ src/sslcat src/sslclient src/sslconnect src/sslprint src/sslserver
 	use perl && dobin src/sslperl
 }

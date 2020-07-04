@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
@@ -6,17 +6,17 @@ EAPI="6"
 inherit toolchain-funcs
 
 DESCRIPTION="A very small C compiler for ix86/amd64"
-HOMEPAGE="http://bellard.org/tcc/"
-SRC_URI="http://download.savannah.gnu.org/releases/tinycc/${P}.tar.bz2"
+HOMEPAGE="https://bellard.org/tcc/"
+SRC_URI="https://download.savannah.gnu.org/releases/tinycc/${P}.tar.bz2"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~amd64-linux"
 
 DEPEND="dev-lang/perl" # doc generation
-# Both tendra and tinycc install /usr/bin/tcc
-RDEPEND="!dev-lang/tendra"
+RDEPEND=""
 IUSE="test"
+RESTRICT="!test? ( test )"
 
 src_prepare() {
 	# Don't strip

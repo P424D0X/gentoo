@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -6,12 +6,12 @@ EAPI=5
 inherit readme.gentoo toolchain-funcs unpacker
 
 DESCRIPTION="Synchronize local workstation with time offered by remote webservers"
-HOMEPAGE="http://www.vervest.org/fiki/bin/view/HTP/DownloadC"
+HOMEPAGE="http://www.vervest.org/htp/"
 SRC_URI="http://www.vervest.org/htp/archive/c/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~mips ppc ~ppc64 s390 sh x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~mips ppc ~ppc64 s390 x86 ~amd64-linux ~x86-linux"
 
 DEPEND=""
 RDEPEND=""

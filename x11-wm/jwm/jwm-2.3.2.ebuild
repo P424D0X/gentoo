@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -10,7 +10,7 @@ SRC_URI="http://joewing.net/programs/jwm/releases/${P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 hppa ppc x86 ~x86-fbsd"
+KEYWORDS="amd64 hppa ppc x86"
 IUSE="bidi debug jpeg png truetype xinerama xpm"
 
 RDEPEND="xpm? ( x11-libs/libXpm )
@@ -25,9 +25,7 @@ RDEPEND="xpm? ( x11-libs/libXpm )
 	bidi? ( dev-libs/fribidi )
 	dev-libs/expat"
 DEPEND="${RDEPEND}
-	x11-proto/xproto
-	x11-proto/xextproto
-	xinerama? ( x11-proto/xineramaproto )"
+	x11-base/xorg-proto"
 
 src_configure() {
 	econf \

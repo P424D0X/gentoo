@@ -24,7 +24,7 @@ IUSE=""
 RDEPEND="virtual/opengl"
 DEPEND="${RDEPEND}
 	app-arch/unzip
-	x11-proto/xproto"
+	x11-base/xorg-proto"
 
 PATCHES=(
 	"${FILESDIR}"/${PV}-gcc.patch
@@ -35,7 +35,7 @@ PATCHES=(
 )
 
 src_compile() {
-	emake -j1 CFLAGS="${CFLAGS}" DATADIR="/usr/share/${PN}" || die "emake failed"
+	emake -j1 CFLAGS="${CFLAGS}" DATADIR="/usr/share/${PN}"
 }
 
 src_install() {

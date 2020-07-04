@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -9,8 +9,8 @@ MYPN=CCfits
 MYP=${MYPN}-${PV}
 
 DESCRIPTION="C++ interface for cfitsio"
-HOMEPAGE="http://heasarc.gsfc.nasa.gov/fitsio/CCfits/"
-SRC_URI="${HOMEPAGE}/${MYP}.tar.gz"
+HOMEPAGE="https://heasarc.gsfc.nasa.gov/fitsio/CCfits/"
+SRC_URI="https://heasarc.gsfc.nasa.gov/fitsio/CCfits/${MYP}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
@@ -37,7 +37,7 @@ src_configure() {
 	econf $(use_enable static-libs static)
 }
 
-src_install () {
+src_install() {
 	if use doc; then
 		DOCS+=( *.pdf )
 		HTML_DOCS=( html/. )

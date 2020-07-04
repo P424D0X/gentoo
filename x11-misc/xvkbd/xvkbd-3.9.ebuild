@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -6,7 +6,7 @@ inherit multilib toolchain-funcs
 
 DESCRIPTION="virtual keyboard for X window system"
 HOMEPAGE="http://t-sato.in.coocan.jp/xvkbd/"
-SRC_URI="${HOMEPAGE}${P}.tar.gz"
+SRC_URI="http://t-sato.in.coocan.jp/xvkbd/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -23,11 +23,9 @@ RDEPEND="
 DEPEND="
 	${RDEPEND}
 	app-text/rman
+	x11-base/xorg-proto
 	x11-misc/gccmakedep
 	x11-misc/imake
-	x11-proto/inputproto
-	x11-proto/xextproto
-	x11-proto/xproto
 "
 PATCHES=(
 	"${FILESDIR}"/${PN}-3.6-last_altgr_mask.patch

@@ -1,13 +1,13 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 PYTHON_COMPAT=( python2_7 )
 
 inherit python-any-r1
 
 DESCRIPTION="Mozilla extension to provide GPG support in mail clients"
-HOMEPAGE="http://www.enigmail.net/"
+HOMEPAGE="https://www.enigmail.net/"
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-3"
@@ -18,38 +18,42 @@ if [[ ${PV} == *9999 ]]; then
 	S="${WORKDIR}/${P}"
 else
 	if [[ ${PV} = *_beta* ]] ; then
-		SRC_URI="http://www.enigmail.net/download/beta/${P/_/-}.tar.gz"
+		SRC_URI="https://www.enigmail.net/download/beta/${P/_/-}.tar.gz"
 	else
-		SRC_URI="http://www.enigmail.net/download/source/${P}.tar.gz"
-		KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
+		SRC_URI="https://www.enigmail.net/download/source/${P}.tar.gz"
+		KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 	fi
 	S="${WORKDIR}/${PN}"
 fi
 
-RDEPEND="|| (
-		( >=app-crypt/gnupg-2.0
-			|| (
-				app-crypt/pinentry[gtk(-)]
-				app-crypt/pinentry[qt4(-)]
-				app-crypt/pinentry[qt5(-)]
-			)
+RDEPEND="
+	( >=app-crypt/gnupg-2.0
+		|| (
+			app-crypt/pinentry[gtk(-)]
+			app-crypt/pinentry[qt5(-)]
 		)
-		=app-crypt/gnupg-1.4*
-	)"
+	)
+	!<mail-client/thunderbird-52.5.0
+"
 DEPEND="${RDEPEND}
 	${PYTHON_DEPS}
 	app-arch/zip
 	dev-lang/perl
 	"
 
+PATCHES=( "${FILESDIR}"/enigmail-no_pEp_auto_download.patch )
+
 src_compile() {
+	# Required or parallel make fails
+	emake -C stdlib createlib
+
 	emake ipc public ui package lang stdlib
 	emake xpi
 
 }
 
 src_install() {
-	local emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' build/dist/install.rdf)
+	local emid=$(sed -n '/"id":/!d; s/.*\({.*}\).*/\1/; p; q' build/dist/manifest.json)
 	[[ -n ${emid} ]] || die "Could not scrape EM:ID from install.rdf"
 
 	mv build/enigmail*.xpi build/"${emid}.xpi" || die 'Could not rename XPI to match EM:ID'

@@ -1,9 +1,11 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
 
-inherit eutils linux-info linux-mod multilib
+MODULES_OPTIONAL_USE=modules
+MODULES_OPTIONAL_USE_IUSE_DEFAULT=1
+inherit eutils linux-info linux-mod multilib toolchain-funcs
 
 DESCRIPTION="iptables extensions not yet accepted in the main kernel"
 HOMEPAGE="http://xtables-addons.sourceforge.net/"
@@ -12,7 +14,6 @@ SRC_URI="mirror://sourceforge/xtables-addons/${P}.tar.xz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64 x86"
-IUSE="modules"
 
 MODULES="quota2 psd pknock lscan length2 ipv4options ipp2p iface gradm geoip fuzzy condition tarpit sysrq logmark ipmark echo dnetmap dhcpmac delude chaos account"
 
@@ -52,7 +53,7 @@ XA_check4internal_module() {
 	fi
 }
 
-pkg_setup()	{
+pkg_setup() {
 	if use modules; then
 		get_version
 		check_modules_supported
@@ -171,7 +172,7 @@ src_configure() {
 	set_arch_to_kernel # .. or it'll look for /arch/amd64/Makefile
 	econf --prefix="${EPREFIX}/" \
 		--libexecdir="${EPREFIX}/$(get_libdir)/" \
-		--with-kbuild="${KV_DIR}"
+		--with-kbuild="${KV_OUT_DIR}"
 }
 
 src_compile() {

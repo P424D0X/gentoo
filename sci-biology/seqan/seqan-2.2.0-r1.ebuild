@@ -1,11 +1,11 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 PYTHON_COMPAT=( python2_7 )
 
-inherit cmake-utils python-any-r1
+inherit cmake-utils python-any-r1 versionator
 
 DESCRIPTION="C++ Sequence Analysis Library"
 HOMEPAGE="http://www.seqan.de/"
@@ -15,6 +15,7 @@ SLOT="0"
 LICENSE="BSD GPL-3"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 IUSE="cpu_flags_x86_sse4_1 doc test"
+RESTRICT="!test? ( test )"
 REQUIRED_USE="cpu_flags_x86_sse4_1"
 
 RDEPEND="

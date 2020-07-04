@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: desktop.eclass
@@ -10,7 +10,7 @@ if [[ -z ${_DESKTOP_ECLASS} ]]; then
 _DESKTOP_ECLASS=1
 
 # @FUNCTION: make_desktop_entry
-# @USAGE: make_desktop_entry(<command>, [name], [icon], [type], [fields])
+# @USAGE: <command> [name] [icon] [type] [fields]
 # @DESCRIPTION:
 # Make a .desktop file.
 #
@@ -162,8 +162,8 @@ make_desktop_entry() {
 	else
 		local desktop_name="${PN}-${slot}"
 	fi
-	local desktop="${T}/$(echo ${exec} | sed 's:[[:space:]/:]:_:g')-${desktop_name}.desktop"
-	#local desktop=${T}/${exec%% *:-${desktop_name}}.desktop
+	local desktop="${exec%%[[:space:]]*}"
+	desktop="${T}/${desktop##*/}-${desktop_name}.desktop"
 
 	# Don't append another ";" when a valid category value is provided.
 	type=${type%;}${type:+;}
@@ -174,7 +174,7 @@ make_desktop_entry() {
 		icon=${icon%.*}
 	fi
 
-	cat <<-EOF > "${desktop}"
+	cat <<-EOF > "${desktop}" || die
 	[Desktop Entry]
 	Name=${name}
 	Type=Application
@@ -190,11 +190,14 @@ make_desktop_entry() {
 		ewarn "make_desktop_entry: update your 5th arg to read Path=${fields}"
 		fields="Path=${fields}"
 	fi
-	[[ -n ${fields} ]] && printf '%b\n' "${fields}" >> "${desktop}"
+	if [[ -n ${fields} ]]; then
+		printf '%b\n' "${fields}" >> "${desktop}" || die
+	fi
 
 	(
 		# wrap the env here so that the 'insinto' call
 		# doesn't corrupt the env of the caller
+		insopts -m 0644
 		insinto /usr/share/applications
 		doins "${desktop}"
 	) || die "installing desktop file failed"
@@ -216,7 +219,7 @@ make_session_desktop() {
 	local desktop=${T}/${wm:-${PN}}.desktop
 	shift 2
 
-	cat <<-EOF > "${desktop}"
+	cat <<-EOF > "${desktop}" || die
 	[Desktop Entry]
 	Name=${title}
 	Comment=This session logs you into ${title}
@@ -228,6 +231,7 @@ make_session_desktop() {
 	(
 	# wrap the env here so that the 'insinto' call
 	# doesn't corrupt the env of the caller
+	insopts -m 0644
 	insinto /usr/share/xsessions
 	doins "${desktop}"
 	)
@@ -242,19 +246,16 @@ domenu() {
 	(
 	# wrap the env here so that the 'insinto' call
 	# doesn't corrupt the env of the caller
-	local i j ret=0
+	local i ret=0
+	insopts -m 0644
 	insinto /usr/share/applications
 	for i in "$@" ; do
-		if [[ -f ${i} ]] ; then
-			doins "${i}"
-			((ret+=$?))
-		elif [[ -d ${i} ]] ; then
-			for j in "${i}"/*.desktop ; do
-				doins "${j}"
-				((ret+=$?))
-			done
+		if [[ -d ${i} ]] ; then
+			doins "${i}"/*.desktop
+			((ret|=$?))
 		else
-			((++ret))
+			doins "${i}"
+			((ret|=$?))
 		fi
 	done
 	exit ${ret}
@@ -269,6 +270,7 @@ newmenu() {
 	(
 	# wrap the env here so that the 'insinto' call
 	# doesn't corrupt the env of the caller
+	insopts -m 0644
 	insinto /usr/share/applications
 	newins "$@"
 	)
@@ -282,6 +284,7 @@ _iconins() {
 	(
 	# wrap the env here so that the 'insinto' call
 	# doesn't corrupt the env of the caller
+	insopts -m 0644
 	local funcname=$1; shift
 	local size dir
 	local context=apps

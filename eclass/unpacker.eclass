@@ -17,6 +17,8 @@
 if [[ -z ${_UNPACKER_ECLASS} ]]; then
 _UNPACKER_ECLASS=1
 
+inherit toolchain-funcs
+
 # @ECLASS-VARIABLE: UNPACKER_BZ2
 # @DEFAULT_UNSET
 # @DESCRIPTION:
@@ -202,7 +204,7 @@ unpack_makeself() {
 				skip=`grep -a ^offset= "${src}" | awk '{print $3}'`
 				(( skip++ ))
 				;;
-			2.1.4|2.1.5|2.1.6|2.2.0)
+			2.1.4|2.1.5|2.1.6|2.2.0|2.4.0)
 				skip=$(grep -a offset=.*head.*wc "${src}" | awk '{print $3}' | head -n 1)
 				skip=$(head -n ${skip} "${src}" | wc -c)
 				exe="dd"
@@ -279,7 +281,7 @@ unpack_deb() {
 			done
 		} < "${deb}"
 	else
-		ar x "${deb}"
+		$(tc-getBUILD_AR) x "${deb}" || die
 	fi
 
 	unpacker ./data.tar*
@@ -339,6 +341,7 @@ _unpacker() {
 	a=$(find_unpackable_file "${a}")
 
 	# first figure out the decompression method
+	local comp=""
 	case ${m} in
 	*.bz2|*.tbz|*.tbz2)
 		local bzcmd=${PORTAGE_BZIP2_COMMAND:-$(type -P pbzip2 || type -P bzip2)}
@@ -353,11 +356,10 @@ _unpacker() {
 	*.lz)
 		: ${UNPACKER_LZIP:=$(type -P plzip || type -P pdlzip || type -P lzip)}
 		comp="${UNPACKER_LZIP} -dc" ;;
-	*)	comp="" ;;
 	esac
 
 	# then figure out if there are any archiving aspects
-	arch=""
+	local arch=""
 	case ${m} in
 	*.tgz|*.tbz|*.tbz2|*.txz|*.tar.*|*.tar)
 		arch="tar --no-same-owner -xof" ;;
@@ -433,7 +435,12 @@ unpacker_src_unpack() {
 unpacker_src_uri_depends() {
 	local uri deps d
 
-	[[ $# -eq 0 ]] && set -- ${SRC_URI}
+	if [[ $# -eq 0 ]] ; then
+		# Disable path expansion for USE conditionals. #654960
+		set -f
+		set -- ${SRC_URI}
+		set +f
+	fi
 
 	for uri in "$@" ; do
 		case ${uri} in

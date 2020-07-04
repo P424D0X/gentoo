@@ -1,9 +1,9 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
 
-inherit autotools toolchain-funcs libtool flag-o-matic
+inherit autotools toolchain-funcs flag-o-matic
 
 MY_PV="${PV/_/-}"
 MY_P="util-linux-${MY_PV}"
@@ -12,7 +12,7 @@ S="${WORKDIR}/${MY_P}"
 
 DESCRIPTION="Loop-AES losetup utility"
 HOMEPAGE="https://www.kernel.org/pub/linux/utils/util-linux/"
-SRC_URI="mirror://kernel/linux/utils/util-linux/v${PV:0:4}/${MY_P}.tar.xz
+SRC_URI="https://www.kernel.org/pub/linux/utils/util-linux/v${PV:0:4}/${MY_P}.tar.xz
 	http://loop-aes.sourceforge.net/loop-AES/${LOOPAES_P}.tar.bz2"
 KEYWORDS="~amd64 ~arm ~hppa ~ppc ~sparc ~x86"
 

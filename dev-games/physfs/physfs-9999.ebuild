@@ -1,25 +1,27 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
+
+CMAKE_ECLASS=cmake
 inherit cmake-multilib
 
 DESCRIPTION="Abstraction layer for filesystem and archive access"
-HOMEPAGE="http://icculus.org/physfs/"
+HOMEPAGE="https://icculus.org/physfs/"
+
 if [[ ${PV} == *9999* ]]; then
 	EHG_REPO_URI="https://hg.icculus.org/icculus/physfs"
 	inherit mercurial
 else
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ppc64 ~x86 ~x86-fbsd"
-	SRC_URI="http://icculus.org/physfs/downloads/${P}.tar.bz2"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ppc64 ~x86"
+	SRC_URI="https://icculus.org/physfs/downloads/${P}.tar.bz2"
 fi
 
 LICENSE="ZLIB"
 SLOT="0"
 IUSE="7zip doc grp hog iso mvl qpak slb static-libs vdf wad +zip"
 
-RDEPEND=""
-DEPEND=""
+BDEPEND="doc? ( app-doc/doxygen )"
 
 DOCS=( docs/CHANGELOG.txt docs/CREDITS.txt docs/TODO.txt )
 
@@ -39,18 +41,14 @@ multilib_src_configure() {
 		-DPHYSFS_ARCHIVE_QPAK="$(usex qpak)"
 		-DPHYSFS_ARCHIVE_ZIP="$(usex zip)"
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 
 multilib_src_compile() {
-	cmake-utils_src_compile
-	multilib_is_native_abi && use doc && cmake-utils_src_compile docs
-}
+	cmake_src_compile
 
-multilib_src_install_all() {
-	einstalldocs
-	if use doc ; then
-		docinto html
-		dodoc -r "${CMAKE_BUILD_DIR}"/docs/html/*
+	if multilib_is_native_abi && use doc; then
+		cmake_src_compile docs
+		HTML_DOCS=( "${BUILD_DIR}"/docs/html/. )
 	fi
 }

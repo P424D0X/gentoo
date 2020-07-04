@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -12,7 +12,7 @@ SRC_URI="http://www.kannel.org/download/${PV}/gateway-${PV}.tar.gz"
 
 LICENSE="Apache-1.1"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 x86"
 IUSE="debug doc mysql libressl pam pcre postgres sqlite ssl"
 
 RESTRICT="test" # some tests fail with "address already in use"
@@ -29,7 +29,7 @@ RDEPEND="
 	sqlite? ( dev-db/sqlite:3 )
 	postgres? ( dev-db/postgresql:=[server] )
 	pcre? ( dev-libs/libpcre:3 )
-	pam? ( virtual/pam )
+	pam? ( sys-libs/pam )
 "
 DEPEND="${RDEPEND}
 	>=sys-devel/bison-2.2
@@ -81,14 +81,14 @@ src_configure() {
 
 # phase disabled by RESTRICT
 # src_test() {
-# 	emake check || die "emake check failed"
+# 	emake check
 # }
 
 src_install() {
 	default
 
 	if use doc; then
-		emake -j1 DESTDIR="${D}" install-docs || die "emake install-docs failed"
+		emake -j1 DESTDIR="${D}" install-docs
 	fi
 
 	diropts -g kannel -m0750

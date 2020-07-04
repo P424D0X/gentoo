@@ -1,8 +1,9 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-inherit autotools eutils multilib
+
+inherit autotools eutils multilib vcs-clean
 
 DESCRIPTION="The Open Racing Car Simulator"
 HOMEPAGE="http://torcs.sourceforge.net/"
@@ -25,7 +26,7 @@ RDEPEND="media-libs/freealut
 	x11-libs/libX11
 	x11-libs/libXrandr"
 DEPEND="${RDEPEND}
-	x11-proto/xf86vidmodeproto"
+	x11-base/xorg-proto"
 
 PATCHES=(
 	"${FILESDIR}"/${P}-no-automake.patch

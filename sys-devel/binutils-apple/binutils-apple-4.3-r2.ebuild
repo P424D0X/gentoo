@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
@@ -13,7 +13,7 @@ LIBUNWIND=libunwind-30
 DYLD=dyld-195.6
 
 DESCRIPTION="Darwin assembler as(1) and static linker ld(1), Xcode Tools ${PV}"
-HOMEPAGE="http://www.opensource.apple.com/darwinsource/"
+HOMEPAGE="http://www.opensource.apple.com/"
 SRC_URI="http://www.opensource.apple.com/tarballs/ld64/${LD64}.tar.gz
 	http://www.opensource.apple.com/tarballs/cctools/${CCTOOLS}.tar.gz
 	http://www.opensource.apple.com/tarballs/cctools/${CCTOOLS_HEADERS}.tar.gz
@@ -24,6 +24,7 @@ SRC_URI="http://www.opensource.apple.com/tarballs/ld64/${LD64}.tar.gz
 LICENSE="APSL-2"
 KEYWORDS="~ppc-macos ~x64-macos ~x86-macos"
 IUSE="lto test multitarget"
+RESTRICT="!test? ( test )"
 
 RDEPEND="sys-devel/binutils-config
 	lto? ( sys-devel/llvm:* )"
@@ -212,8 +213,8 @@ compile_ld64() {
 	einfo "building ${LD64}"
 	cd "${S}"/${LD64}/src
 	emake \
-		LTO=${ENABLE_LTO} \
-		|| die "emake failed for ld64"
+		LTO=${ENABLE_LTO}
+
 	use test && emake build_test
 }
 
@@ -231,15 +232,14 @@ compile_cctools() {
 		RC_ProjectSourceVersion=${CCTOOLS_VERSION} \
 		RC_CFLAGS="${CFLAGS}" \
 		OFLAG="${CCTOOLS_OFLAG}" \
-		-j1 \
-		|| die "emake failed for the cctools"
+		-j1
+
 	cd "${S}"/${CCTOOLS}/as
 	emake \
 		BUILD_OBSOLETE_ARCH= \
 		RC_ProjectSourceVersion=${CCTOOLS_VERSION} \
 		RC_CFLAGS="-DASLIBEXECDIR=\"\\\"${EPREFIX}${LIBPATH}/\\\"\" ${CFLAGS}" \
-		OFLAG="${CCTOOLS_OFLAG}" \
-		|| die "emake failed for as"
+		OFLAG="${CCTOOLS_OFLAG}"
 }
 
 src_compile() {

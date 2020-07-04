@@ -1,9 +1,9 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit autotools eutils fortran-2 versionator
+inherit autotools eutils fortran-2 ltprune versionator
 
 PV1=$(get_version_component_range 1 ${PV})
 PV2=$(get_version_component_range 2 ${PV})
@@ -12,12 +12,12 @@ MY_P=${PN}${PV1}${PV2}${PV3}
 MY_PINC="${PN^^}${PV1}${PV2}.INC"
 
 DESCRIPTION="High Energy Physics Event Generator"
-HOMEPAGE="http://www.hep.phy.cam.ac.uk/theory/webber/Herwig/"
+HOMEPAGE="https://www.hep.phy.cam.ac.uk/theory/webber/Herwig/"
 SRC_URI="
-	${HOMEPAGE}/${MY_P}.f
-	${HOMEPAGE}/${MY_P}.inc
-	${HOMEPAGE}/${MY_PINC}
-	doc? ( ${HOMEPAGE}/hw65_manual.pdf )"
+	https://www.hep.phy.cam.ac.uk/theory/webber/Herwig/${MY_P}.f
+	https://www.hep.phy.cam.ac.uk/theory/webber/Herwig/${MY_P}.inc
+	https://www.hep.phy.cam.ac.uk/theory/webber/Herwig/${MY_PINC}
+	doc? ( https://www.hep.phy.cam.ac.uk/theory/webber/Herwig/hw65_manual.pdf )"
 
 LICENSE="all-rights-reserved"
 RESTRICT="mirror bindist"

@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: kernel-2.eclass
@@ -8,6 +8,7 @@
 # John Mylchreest <johnm@gentoo.org>
 # Mike Pagano <mpagano@gentoo.org>
 # <so many, many others, please add yourself>
+# @SUPPORTED_EAPIS: 2 3 4 5 6
 # @BLURB: Eclass for kernel packages
 # @DESCRIPTION:
 # This is the kernel.eclass rewrite for a clean base regarding the 2.6
@@ -190,13 +191,10 @@
 # If you do change them, there is a chance that we will not fix resulting bugs;
 # that of course does not mean we're not willing to help.
 
-PYTHON_COMPAT=( python{2_6,2_7} )
-
-inherit eutils toolchain-funcs versionator multilib python-any-r1
+inherit toolchain-funcs
+[[ ${EAPI:-0} == [012345] ]] && inherit epatch
+[[ ${EAPI:-0} == [0123456] ]] && inherit estack eapi7-ver
 case ${EAPI:-0} in
-	0|1)
-		EXPORT_FUNCTIONS src_{unpack,compile,install,test} \
-			pkg_{setup,preinst,postinst,postrm} ;;
 	2|3|4|5|6)
 		EXPORT_FUNCTIONS src_{unpack,prepare,compile,install,test} \
 			pkg_{setup,preinst,postinst,postrm} ;;
@@ -213,10 +211,8 @@ if [[ ${CTARGET} == ${CHOST} && ${CATEGORY/cross-} != ${CATEGORY} ]]; then
 	export CTARGET=${CATEGORY/cross-}
 fi
 
-HOMEPAGE="https://www.kernel.org/ https://www.gentoo.org/ ${HOMEPAGE}"
+HOMEPAGE="https://www.kernel.org/ https://wiki.gentoo.org/wiki/Kernel ${HOMEPAGE}"
 : ${LICENSE:="GPL-2"}
-
-has "${EAPI:-0}" 0 1 2 && ED=${D} EPREFIX= EROOT=${ROOT}
 
 # This is the latest KV_PATCH of the deblob tool available from the
 # libre-sources upstream. If you bump this, you MUST regenerate the Manifests
@@ -299,7 +295,7 @@ handle_genpatches() {
 			UNIPATCH_LIST_GENPATCHES+=" ${DISTDIR}/${tarball}"
 			debug-print "genpatches tarball: $tarball"
 		fi
-		GENPATCHES_URI+=" ${use_cond_start}mirror://gentoo/${tarball}${use_cond_end}"
+		GENPATCHES_URI+=" ${use_cond_start}$(echo https://dev.gentoo.org/~{alicef,mpagano,whissi}/dist/genpatches/${tarball})${use_cond_end}"
 	done
 }
 
@@ -326,7 +322,7 @@ detect_version() {
 	OKV=${OKV/-r*}
 	OKV=${OKV/_p*}
 
-	KV_MAJOR=$(get_version_component_range 1 ${OKV})
+	KV_MAJOR=$(ver_cut 1 ${OKV})
 	# handle if OKV is X.Y or X.Y.Z (e.g. 3.0 or 3.0.1)
 	local OKV_ARRAY
 	IFS="." read -r -a OKV_ARRAY <<<"${OKV}"
@@ -334,17 +330,17 @@ detect_version() {
 	# if KV_MAJOR >= 3, then we have no more KV_MINOR
 	#if [[ ${KV_MAJOR} -lt 3 ]]; then
 	if [[ ${#OKV_ARRAY[@]} -ge 3 ]]; then
-		KV_MINOR=$(get_version_component_range 2 ${OKV})
-		KV_PATCH=$(get_version_component_range 3 ${OKV})
+		KV_MINOR=$(ver_cut 2 ${OKV})
+		KV_PATCH=$(ver_cut 3 ${OKV})
 		if [[ ${KV_MAJOR}${KV_MINOR}${KV_PATCH} -ge 269 ]]; then
-			KV_EXTRA=$(get_version_component_range 4- ${OKV})
+			KV_EXTRA=$(ver_cut 4- ${OKV})
 			KV_EXTRA=${KV_EXTRA/[-_]*}
 		else
-			KV_PATCH=$(get_version_component_range 3- ${OKV})
+			KV_PATCH=$(ver_cut 3- ${OKV})
 		fi
 	else
-		KV_PATCH=$(get_version_component_range 2 ${OKV})
-		KV_EXTRA=$(get_version_component_range 3- ${OKV})
+		KV_PATCH=$(ver_cut 2 ${OKV})
+		KV_EXTRA=$(ver_cut 3- ${OKV})
 		KV_EXTRA=${KV_EXTRA/[-_]*}
 	fi
 
@@ -375,17 +371,17 @@ detect_version() {
 
 		# at this point 031412, Linus is putting all 3.x kernels in a
 		# 3.x directory, may need to revisit when 4.x is released
-		KERNEL_BASE_URI="mirror://kernel/linux/kernel/v${KV_MAJOR}.x"
+		KERNEL_BASE_URI="https://www.kernel.org/pub/linux/kernel/v${KV_MAJOR}.x"
 
 		[[ -n "${K_LONGTERM}" ]] &&
 			KERNEL_BASE_URI="${KERNEL_BASE_URI}/longterm/v${KV_MAJOR}.${KV_PATCH_ARR}"
 	else
-		#KERNEL_BASE_URI="mirror://kernel/linux/kernel/v${KV_MAJOR}.0"
-		#KERNEL_BASE_URI="mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_MINOR}"
+		#KERNEL_BASE_URI="https://www.kernel.org/pub/linux/kernel/v${KV_MAJOR}.0"
+		#KERNEL_BASE_URI="https://www.kernel.org/pub/linux/kernel/v${KV_MAJOR}.${KV_MINOR}"
 		if [[ ${KV_MAJOR} -ge 3 ]]; then
-			KERNEL_BASE_URI="mirror://kernel/linux/kernel/v${KV_MAJOR}.x"
+			KERNEL_BASE_URI="https://www.kernel.org/pub/linux/kernel/v${KV_MAJOR}.x"
 		else
-			KERNEL_BASE_URI="mirror://kernel/linux/kernel/v${KV_MAJOR}.${KV_MINOR}"
+			KERNEL_BASE_URI="https://www.kernel.org/pub/linux/kernel/v${KV_MAJOR}.${KV_MINOR}"
 		fi
 
 		[[ -n "${K_LONGTERM}" ]] &&
@@ -511,7 +507,7 @@ detect_version() {
 
 			# as of 12/5/2017, the rc patch is no longer offered as a compressed
 			# file, and no longer is it mirrored on kernel.org
-			if [[ ${KV_MAJOR} -ge 4 ]] && [[ ${KV_PATCH} -ge 12 ]]; then
+			if ver_test "${KV_MAJOR}.${KV_PATCH}" -ge "4.12"; then
 				KERNEL_URI="https://git.kernel.org/torvalds/p/v${KV_FULL}/v${OKV} -> patch-${KV_FULL}.patch
 							${KERNEL_BASE_URI}/linux-${OKV}.tar.xz"
 				UNIPATCH_LIST_DEFAULT="${DISTDIR}/patch-${CKV//_/-}.patch"
@@ -602,11 +598,14 @@ if [[ ${ETYPE} == sources ]]; then
 		>=sys-devel/binutils-2.11.90.0.31
 	)"
 	RDEPEND="!build? (
-		>=sys-libs/ncurses-5.2
-		sys-devel/make
 		dev-lang/perl
 		sys-devel/bc
+		sys-devel/bison
+		sys-devel/flex
+		sys-devel/make
+		>=sys-libs/ncurses-5.2
 		virtual/libelf
+		virtual/pkgconfig
 	)"
 
 	SLOT="${PVR}"
@@ -621,11 +620,16 @@ if [[ ${ETYPE} == sources ]]; then
 				kernel_is le 2 6 ${DEBLOB_MAX_VERSION} && \
 					K_DEBLOB_AVAILABLE=1
 		if [[ ${K_DEBLOB_AVAILABLE} == "1" ]] ; then
+			PYTHON_COMPAT=( python2_7 )
+
+			inherit python-any-r1
+
 			IUSE="${IUSE} deblob"
 
 			# Reflect that kernels contain firmware blobs unless otherwise
-			# stripped
-			LICENSE="${LICENSE} !deblob? ( linux-firmware )"
+			# stripped. Starting with version 4.14, the whole firmware
+			# tree has been dropped from the kernel.
+			kernel_is lt 4 14 && LICENSE+=" !deblob? ( linux-firmware )"
 
 			DEPEND+=" deblob? ( ${PYTHON_DEPS} )"
 
@@ -643,14 +647,9 @@ if [[ ${ETYPE} == sources ]]; then
 			K_DEBLOB_TAG=${K_DEBLOB_TAG:--gnu}
 			DEBLOB_A="deblob-${DEBLOB_PV}"
 			DEBLOB_CHECK_A="deblob-check-${DEBLOB_PV}"
-			DEBLOB_HOMEPAGE="http://www.fsfla.org/svn/fsfla/software/linux-libre/releases/tags"
+			DEBLOB_HOMEPAGE="https://www.fsfla.org/svn/fsfla/software/linux-libre/releases/tags/"
 			DEBLOB_URI_PATH="${DEBLOB_PV}${K_DEBLOB_TAG}"
-			if ! has "${EAPI:-0}" 0 1 ; then
-				DEBLOB_CHECK_URI="${DEBLOB_HOMEPAGE}/${DEBLOB_URI_PATH}/deblob-check -> ${DEBLOB_CHECK_A}"
-			else
-				DEBLOB_CHECK_URI="mirror://gentoo/${DEBLOB_CHECK_A}"
-			fi
-
+			DEBLOB_CHECK_URI="${DEBLOB_HOMEPAGE}/${DEBLOB_URI_PATH}/deblob-check -> ${DEBLOB_CHECK_A}"
 			DEBLOB_URI="${DEBLOB_HOMEPAGE}/${DEBLOB_URI_PATH}/${DEBLOB_A}"
 			HOMEPAGE="${HOMEPAGE} ${DEBLOB_HOMEPAGE}"
 
@@ -659,10 +658,10 @@ if [[ ${ETYPE} == sources ]]; then
 					${DEBLOB_URI}
 					${DEBLOB_CHECK_URI}
 				)"
-		else
-			# We have no way to deblob older kernels, so just mark them as
-			# tainted with non-libre materials.
-			LICENSE="${LICENSE} linux-firmware"
+		elif kernel_is lt 4 14; then
+			# Deblobbing is not available, so just mark kernels older
+			# than 4.14 as tainted with non-libre materials.
+			LICENSE+=" linux-firmware"
 		fi
 	fi
 
@@ -714,6 +713,7 @@ env_setup_xmakeopts() {
 	elif type -p ${CHOST}-ar > /dev/null ; then
 		xmakeopts="${xmakeopts} CROSS_COMPILE=${CHOST}-"
 	fi
+	xmakeopts="${xmakeopts} HOSTCC=$(tc-getBUILD_CC)"
 	export xmakeopts
 }
 
@@ -749,7 +749,6 @@ unpack_2_6() {
 		touch .config
 		eerror "make defconfig failed."
 		eerror "assuming you dont have any headers installed yet and continuing"
-		epause 5
 	fi
 
 	make -s include/linux/version.h ${xmakeopts} 2>/dev/null \
@@ -1018,7 +1017,7 @@ postinst_sources() {
 	#	K_SECURITY_UNSUPPORTED=deblob
 
 	# if we are to forcably symlink, delete it if it already exists first.
-	if [[ ${K_SYMLINK} > 0 ]]; then
+	if [[ ${K_SYMLINK} -gt 0 ]]; then
 		[[ -h ${EROOT}usr/src/linux ]] && { rm "${EROOT}"usr/src/linux || die; }
 		MAKELINK=1
 	fi
@@ -1076,12 +1075,12 @@ postinst_sources() {
 	fi
 
 	# warn sparc users that they need to do cross-compiling with >= 2.6.25(bug #214765)
-	KV_MAJOR=$(get_version_component_range 1 ${OKV})
-	KV_MINOR=$(get_version_component_range 2 ${OKV})
-	KV_PATCH=$(get_version_component_range 3 ${OKV})
+	KV_MAJOR=$(ver_cut 1 ${OKV})
+	KV_MINOR=$(ver_cut 2 ${OKV})
+	KV_PATCH=$(ver_cut 3 ${OKV})
 	if [[ "$(tc-arch)" = "sparc" ]]; then
 		if [[ $(gcc-major-version) -lt 4 && $(gcc-minor-version) -lt 4 ]]; then
-			if [[ ${KV_MAJOR} -ge 3 || ${KV_MAJOR}.${KV_MINOR}.${KV_PATCH} > 2.6.24 ]] ; then
+			if [[ ${KV_MAJOR} -ge 3 ]] || ver_test ${KV_MAJOR}.${KV_MINOR}.${KV_PATCH} -gt 2.6.24 ; then
 				echo
 				elog "NOTE: Since 2.6.25 the kernel Makefile has changed in a way that"
 				elog "you now need to do"
@@ -1232,17 +1231,45 @@ unipatch() {
 			UNIPATCH_LIST_GENPATCHES+=" ${DISTDIR}/${tarball}"
 			debug-print "genpatches tarball: $tarball"
 
-			# check gcc version < 4.9.X uses patch 5000 and = 4.9.X uses patch 5010
-			if [[ $(gcc-major-version) -eq 4 ]] && [[ $(gcc-minor-version) -ne 9 ]]; then
-				# drop 5000_enable-additional-cpu-optimizations-for-gcc-4.9.patch
-				if [[ $UNIPATCH_DROP != *"5010_enable-additional-cpu-optimizations-for-gcc-4.9.patch"* ]]; then
+			local GCC_MAJOR_VER=$(gcc-major-version)
+			local GCC_MINOR_VER=$(gcc-minor-version)
+
+			# optimization patch for gcc < 8.X and kernel > 4.13
+			if kernel_is ge 4 13 ; then 
+				if [[ ${GCC_MAJOR_VER} -lt 8 ]] && [[ ${GCC_MAJOR_VER} -gt 4 ]]; then
+					UNIPATCH_DROP+=" 5011_enable-cpu-optimizations-for-gcc8.patch"
+					UNIPATCH_DROP+=" 5012_enable-cpu-optimizations-for-gcc91.patch"
+					UNIPATCH_DROP+=" 5013_enable-cpu-optimizations-for-gcc10.patch"
+				# optimization patch for gcc >= 8 and kernel ge 4.13
+				elif [[ "${GCC_MAJOR_VER}" -eq 8 ]]; then
+					# support old kernels for a period. For now, remove as all gcc versions required are masked
+					UNIPATCH_DROP+=" 5010_enable-additional-cpu-optimizations-for-gcc.patch"
 					UNIPATCH_DROP+=" 5010_enable-additional-cpu-optimizations-for-gcc-4.9.patch"
+					UNIPATCH_DROP+=" 5012_enable-cpu-optimizations-for-gcc91.patch"
+					UNIPATCH_DROP+=" 5013_enable-cpu-optimizations-for-gcc10.patch"
+				elif [[ "${GCC_MAJOR_VER}" -eq 9 ]] && [[ ${GCC_MINOR_VER} -ge 1 ]]; then
+					UNIPATCH_DROP+=" 5010_enable-additional-cpu-optimizations-for-gcc.patch"
+					UNIPATCH_DROP+=" 5010_enable-additional-cpu-optimizations-for-gcc-4.9.patch"
+					UNIPATCH_DROP+=" 5011_enable-cpu-optimizations-for-gcc8.patch"
+					UNIPATCH_DROP+=" 5013_enable-cpu-optimizations-for-gcc10.patch"
+				elif [[ "${GCC_MAJOR_VER}" -eq 10 ]] && [[ ${GCC_MINOR_VER} -ge 1 ]]; then
+					UNIPATCH_DROP+=" 5010_enable-additional-cpu-optimizations-for-gcc.patch"
+					UNIPATCH_DROP+=" 5010_enable-additional-cpu-optimizations-for-gcc-4.9.patch"
+					UNIPATCH_DROP+=" 5011_enable-cpu-optimizations-for-gcc8.patch"
+					UNIPATCH_DROP+=" 5012_enable-cpu-optimizations-for-gcc91.patch"
+				else
+					UNIPATCH_DROP+=" 5010_enable-additional-cpu-optimizations-for-gcc.patch"
+					UNIPATCH_DROP+=" 5010_enable-additional-cpu-optimizations-for-gcc-4.9.patch"
+					UNIPATCH_DROP+=" 5011_enable-cpu-optimizations-for-gcc8.patch"
+					UNIPATCH_DROP+=" 5012_enable-cpu-optimizations-for-gcc91.patch"
+					UNIPATCH_DROP+=" 5013_enable-cpu-optimizations-for-gcc10.patch"
 				fi
 			else
-				if [[ $UNIPATCH_DROP != *"5000_enable-additional-cpu-optimizations-for-gcc.patch"* ]]; then
-					#drop 5000_enable-additional-cpu-optimizations-for-gcc.patch
-					UNIPATCH_DROP+=" 5000_enable-additional-cpu-optimizations-for-gcc.patch"
-				fi
+				UNIPATCH_DROP+=" 5010_enable-additional-cpu-optimizations-for-gcc.patch"
+				UNIPATCH_DROP+=" 5010_enable-additional-cpu-optimizations-for-gcc-4.9.patch"
+				UNIPATCH_DROP+=" 5011_enable-cpu-optimizations-for-gcc8.patch"
+				UNIPATCH_DROP+=" 5012_enable-cpu-optimizations-for-gcc91.patch"
+				UNIPATCH_DROP+=" 5013_enable-cpu-optimizations-for-gcc10.patch"
 			fi
 		fi
 	done
@@ -1257,13 +1284,15 @@ unipatch() {
 	# do not apply fbcondecor patch to sparc/sparc64 as it breaks boot
 	# bug #272676
 	if [[ "$(tc-arch)" = "sparc" || "$(tc-arch)" = "sparc64" ]]; then
-		if [[ ${KV_MAJOR} -ge 3 || ${KV_MAJOR}.${KV_MINOR}.${KV_PATCH} > 2.6.28 ]]; then
-			UNIPATCH_DROP="${UNIPATCH_DROP} *_fbcondecor-0.9.6.patch"
-			echo
-			ewarn "fbcondecor currently prevents sparc/sparc64 from booting"
-			ewarn "for kernel versions >= 2.6.29. Removing fbcondecor patch."
-			ewarn "See https://bugs.gentoo.org/show_bug.cgi?id=272676 for details"
-			echo
+		if [[ ${KV_MAJOR} -ge 3 ]] || ver_test ${KV_MAJOR}.${KV_MINOR}.${KV_PATCH} -gt 2.6.28 ; then
+			if [[ ! -z ${K_WANT_GENPATCHES} ]] ; then
+				UNIPATCH_DROP="${UNIPATCH_DROP} *_fbcondecor*.patch"
+				echo
+				ewarn "fbcondecor currently prevents sparc/sparc64 from booting"
+				ewarn "for kernel versions >= 2.6.29. Removing fbcondecor patch."
+				ewarn "See https://bugs.gentoo.org/show_bug.cgi?id=272676 for details"
+				echo
+			fi
 		fi
 	fi
 
@@ -1477,10 +1506,6 @@ kernel-2_src_unpack() {
 	# we run misc `make` functions below
 	[[ $(type -t kernel-2_hook_premake) == "function" ]] && kernel-2_hook_premake
 
-	case ${EAPI:-0} in
-		0|1) kernel-2_src_prepare ;;
-	esac
-
 	debug-print "Doing unpack_set_extraversion"
 
 	[[ -z ${K_NOSETEXTRAVERSION} ]] && unpack_set_extraversion
@@ -1508,7 +1533,7 @@ kernel-2_src_unpack() {
 	# fix a problem on ppc where TOUT writes to /usr/src/linux breaking sandbox
 	# only do this for kernel < 2.6.27 since this file does not exist in later
 	# kernels
-	if [[ -n ${KV_MINOR} &&  ${KV_MAJOR}.${KV_MINOR}.${KV_PATCH} < 2.6.27 ]] ; then
+	if [[ -n ${KV_MINOR} ]] && ver_test ${KV_MAJOR}.${KV_MINOR}.${KV_PATCH} -lt 2.6.27 ; then
 		sed -i \
 			-e 's|TOUT      := .tmp_gas_check|TOUT  := $(T).tmp_gas_check|' \
 			"${S}"/arch/ppc/Makefile
@@ -1607,7 +1632,6 @@ kernel-2_pkg_setup() {
 			ewarn "Also be aware that bugreports about gcc-4 not working"
 			ewarn "with linux-2.4 based ebuilds will be closed as INVALID!"
 			echo
-			epause 10
 		fi
 	fi
 

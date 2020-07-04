@@ -1,19 +1,19 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-EGIT_REPO_URI="https://github.com/qxmpp-project/qxmpp"
-
-inherit git-r3 qmake-utils
+inherit git-r3 cmake
 
 DESCRIPTION="A cross-platform C++ XMPP client library based on the Qt framework"
 HOMEPAGE="https://github.com/qxmpp-project/qxmpp/"
+EGIT_REPO_URI="https://github.com/qxmpp-project/qxmpp"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS=""
 IUSE="debug doc opus +speex test theora vpx"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	dev-qt/qtcore:5
@@ -27,48 +27,33 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	test? ( dev-qt/qttest:5 )
 "
+BDEPEND="
+	doc? ( app-doc/doxygen )
+"
 
 src_prepare() {
-	default
+	# requires network connection, bug #623708
+	sed \
+		-e "/qxmppiceconnection/d" \
+		-e "/qxmppserver/d" \
+		-e "/qxmpptransfermanager/d" \
+		-i tests/CMakeLists.txt \
+		|| die "failed to drop certain network tests"
 
-	if ! use doc; then
-		sed -e '/SUBDIRS/s/doc//' \
-			-e '/INSTALLS/d' \
-			-i qxmpp.pro || die "failed to remove docs"
-	fi
-	if ! use test; then
-		sed -e '/SUBDIRS/s/tests//' \
-			-i qxmpp.pro || die "failed to remove tests"
-	else
-		# requires network connection, bug #623708
-		sed -e "/qxmppiceconnection/d" \
-			-i tests/tests.pro || die "failed to drop single test"
-	fi
-	# There is no point in building examples. Also, they require dev-qt/qtgui
-	sed -e '/SUBDIRS/s/examples//' \
-		-i qxmpp.pro || die "sed for removing examples failed"
+	cmake_src_prepare
 }
 
 src_configure() {
-	eqmake5 "${S}"/qxmpp.pro \
-		PREFIX="${EPREFIX}/usr" \
-		LIBDIR="$(get_libdir)" \
-		QXMPP_USE_OPUS=$(usex opus 1 '') \
-		QXMPP_USE_SPEEX=$(usex speex 1 '') \
-		QXMPP_USE_THEORA=$(usex theora 1 '') \
-		QXMPP_USE_VPX=$(usex vpx 1 '')
-}
+	local mycmakeargs=(
+		-DBUILD_DOCUMENTATION=$(usex doc)
+		-DBUILD_EXAMPLES=OFF
+		-DBUILD_TESTS=$(usex test)
+		-DBUILD_INTERNAL_TESTS=$(usex test)
+		-DWITH_OPUS=$(usex opus)
+		-DWITH_SPEEX=$(usex speex)
+		-DWITH_THEORA=$(usex theora)
+		-DWITH_VPX=$(usex vpx)
+	)
 
-src_install() {
-	emake INSTALL_ROOT="${D}" install
-	einstalldocs
-	if use doc; then
-		# Use proper path for documentation
-		mv "${ED}"/usr/share/doc/${PN} "${ED}"/usr/share/doc/${PF} || die "doc mv failed"
-	fi
-}
-
-src_test() {
-	MAKEOPTS="-j1" # random tests fail otherwise
-	default_src_test
+	cmake_src_configure
 }

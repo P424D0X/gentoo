@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -10,11 +10,11 @@ inherit haskell-cabal
 
 DESCRIPTION="A fast, iteratee-based, epoll-enabled web server for the Snap Framework"
 HOMEPAGE="http://snapframework.com/"
-SRC_URI="mirror://hackage/packages/archive/${PN}/${PV}/${P}.tar.gz"
+SRC_URI="https://hackage.haskell.org/package/${P}/${P}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0/${PV}"
-KEYWORDS="amd64 x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="openssl portable"
 
 RDEPEND=">=dev-haskell/attoparsec-0.10:=[profile?] <dev-haskell/attoparsec-0.14:=[profile?]
@@ -39,7 +39,8 @@ DEPEND="${RDEPEND}
 
 src_prepare() {
 	cabal_chdeps \
-		'attoparsec                >= 0.10     && < 0.13' 'attoparsec                >= 0.10     && < 0.14'
+		'attoparsec                >= 0.10     && < 0.13' 'attoparsec                >= 0.10     && < 0.14' \
+		'time                      >= 1.0      && < 1.6' 'time                      >= 1.0'
 }
 
 src_configure() {

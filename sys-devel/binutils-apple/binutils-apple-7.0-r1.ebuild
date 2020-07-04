@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
@@ -12,7 +12,7 @@ LIBUNWIND=libunwind-35.3
 DYLD=dyld-360.14
 
 DESCRIPTION="Darwin assembler as(1) and static linker ld(1), Xcode Tools ${PV}"
-HOMEPAGE="http://www.opensource.apple.com/darwinsource/"
+HOMEPAGE="http://www.opensource.apple.com/"
 SRC_URI="http://www.opensource.apple.com/tarballs/ld64/${LD64}.tar.gz
 	http://www.opensource.apple.com/tarballs/cctools/${CCTOOLS}.tar.gz
 	http://www.opensource.apple.com/tarballs/dyld/${DYLD}.tar.gz
@@ -20,12 +20,13 @@ SRC_URI="http://www.opensource.apple.com/tarballs/ld64/${LD64}.tar.gz
 	https://dev.gentoo.org/~grobian/distfiles/${PN}-patches-4.3-r1.tar.bz2
 	https://dev.gentoo.org/~grobian/distfiles/${PN}-patches-5.1-r2.tar.bz2
 	https://dev.gentoo.org/~grobian/distfiles/${PN}-patches-6.1-r1.tar.bz2
-	https://dev.gentoo.org/~grobian/distfiles/${PN}-patches-6.3-r1.tar.bz2
-	https://dev.gentoo.org/~grobian/distfiles/${PN}-patches-7.0-r2.tar.bz2"
+	https://dev.gentoo.org/~grobian/distfiles/${PN}-patches-6.3-r2.tar.bz2
+	https://dev.gentoo.org/~grobian/distfiles/${PN}-patches-7.0-r3.tar.bz2"
 
 LICENSE="APSL-2"
 KEYWORDS="~ppc-macos ~x64-macos ~x86-macos"
 IUSE="lto test multitarget"
+RESTRICT="!test? ( test )"
 
 # ld64 can now only be compiled using llvm and libc++ since it massivley uses
 # C++11 language fatures. *But additionally* the as driver now defaults to
@@ -239,8 +240,8 @@ compile_ld64() {
 	einfo "building ${LD64}"
 	cd "${S}"/${LD64}/src
 	emake \
-		LTO=${ENABLE_LTO} \
-		|| die "emake failed for ld64"
+		LTO=${ENABLE_LTO}
+
 	use test && emake build_test
 }
 
@@ -262,16 +263,15 @@ compile_cctools() {
 		RC_ProjectSourceVersion=${CCTOOLS_VERSION} \
 		RC_CFLAGS="${CFLAGS}" \
 		OFLAG="${CCTOOLS_OFLAG}" \
-		DSYMUTIL=": disabled: dsymutil" \
-		|| die "emake failed for the cctools"
+		DSYMUTIL=": disabled: dsymutil"
+
 	cd "${S}"/${CCTOOLS}/as
 	emake \
 		BUILD_OBSOLETE_ARCH= \
 		RC_ProjectSourceVersion=${CCTOOLS_VERSION} \
 		RC_CFLAGS="-DASLIBEXECDIR=\"\\\"${EPREFIX}${LIBPATH}/\\\"\" -DCLANGDIR=\"\\\"${EPREFIX}/usr/bin/\\\"\" ${CFLAGS}" \
 		OFLAG="${CCTOOLS_OFLAG}" \
-		DSYMUTIL=": disabled: dsymutil" \
-		|| die "emake failed for as"
+		DSYMUTIL=": disabled: dsymutil"
 }
 
 src_compile() {

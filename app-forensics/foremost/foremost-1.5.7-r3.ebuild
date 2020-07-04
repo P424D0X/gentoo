@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -11,16 +11,13 @@ HOMEPAGE="http://foremost.sourceforge.net/"
 # starting to hate sf.net ...
 SRC_URI="http://foremost.sourceforge.net/pkg/${P}.tar.gz"
 
-KEYWORDS="~amd64 ~ppc ~x86"
+KEYWORDS="amd64 ppc x86"
 IUSE=""
 LICENSE="public-domain"
 SLOT="0"
-
-src_prepare() {
-	epatch "${FILESDIR}/${PN}-1.4-config-location.patch"
-	epatch "${FILESDIR}/${PN}-1.5.7-format-security.patch"
-	default_src_prepare
-}
+PATCHES=("${FILESDIR}/${PN}-1.4-config-location.patch"
+		"${FILESDIR}/${PN}-1.5.7-format-security.patch"
+		"${FILESDIR}/${PN}-1.5.7-set-but-unused.patch")
 
 src_compile() {
 	emake RAW_FLAGS="${CFLAGS} -Wall ${LDFLAGS}" RAW_CC="$(tc-getCC) -DVERSION=\\\"${PV}\\\"" \

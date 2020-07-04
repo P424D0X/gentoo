@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -14,15 +14,14 @@ SRC_URI="http://www.roaringpenguin.com/files/download/${P}.tar.gz
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ~ia64 ~mips ppc ppc64 ~sh sparc x86"
+KEYWORDS="~alpha amd64 arm ~arm64 hppa ~ia64 ~mips ppc ppc64 sparc x86"
 IUSE="tk"
 
 RDEPEND="
 	net-dialup/ppp:=
 	tk? ( dev-lang/tk:= )
 "
-# see bug #230491
-DEPEND="|| ( <sys-kernel/linux-headers-2.6.24 >=sys-kernel/linux-headers-2.6.25 )
+DEPEND=">=sys-kernel/linux-headers-2.6.25
 	${RDEPEND}"
 
 DOC_CONTENTS="Use pppoe-setup to configure your dialup connection"
@@ -74,11 +73,11 @@ src_compile() {
 	emake
 
 	if use tk; then
-		emake -C "${S}/gui" || die "gui make failed"
+		emake -C "${S}/gui"
 	fi
 }
 
-src_install () {
+src_install() {
 	cd "${S}/src" || die
 	emake DESTDIR="${D}" docdir=/usr/share/doc/${PF} install
 

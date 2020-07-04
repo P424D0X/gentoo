@@ -1,17 +1,17 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 CDROM_OPTIONAL="yes"
-inherit cdrom eutils
+inherit cdrom estack eutils
 
 # Not possible to apply official 1.2 patch under Linux. A Gentoo user
 # created Xdelta patches and the DXX-Rebirth project kindly hosted them.
 MY_PATCH="http://www.dxx-rebirth.com/download/dxx/misc/d2xptch12.tgz"
 
 # For GOG install
-MY_EXE="setup_descent2_2.1.0.10.exe"
+MY_EXE="setup_descent_2_1.1_(16596).exe"
 
 DESCRIPTION="Data files for Descent 2"
 HOMEPAGE="http://www.interplay.com/games/descent.php"
@@ -38,8 +38,8 @@ DEPEND="cdinstall? (
 S="${WORKDIR}"
 
 pkg_nofetch() {
-	elog "You must place a copy of, or symlink to, the GOG setup package here:"
-	elog "${DISTDIR}/${MY_EXE}"
+	elog "You must place a copy of, or symlink to, the GOG setup package in your"
+	elog "distfiles directory."
 	echo
 	elog "If you wish to install from CD-ROM instead, please enable the cdinstall flag."
 }

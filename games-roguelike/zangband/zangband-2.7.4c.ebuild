@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -11,7 +11,7 @@ SRC_URI="ftp://ftp.sunet.se/pub/games/Angband/Variant/ZAngband/${P}.tar.gz"
 
 LICENSE="Moria"
 SLOT="0"
-KEYWORDS="~amd64 ~x86 ~x86-fbsd"
+KEYWORDS="~amd64 ~x86"
 IUSE="tk"
 
 RDEPEND="
@@ -21,13 +21,14 @@ RDEPEND="
 		)
 	x11-libs/libXaw"
 DEPEND="${RDEPEND}
-	x11-proto/xextproto"
+	x11-base/xorg-proto"
 
 S=${WORKDIR}/${PN}
 
 src_prepare() {
 	epatch "${FILESDIR}"/${P}-tk85.patch \
 		"${FILESDIR}"/${P}-rng.patch \
+		"${FILESDIR}"/${P}-tinfo.patch \
 		"${FILESDIR}"/${P}-configure.patch \
 		"${FILESDIR}"/${P}-makefile.patch
 	mv configure.in configure.ac || die

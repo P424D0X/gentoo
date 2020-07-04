@@ -1,9 +1,9 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
 
-inherit autotools elisp-common ltprune
+inherit autotools elisp-common
 
 DESCRIPTION="Namazu is a full-text search engine"
 HOMEPAGE="http://www.namazu.org/"
@@ -15,7 +15,7 @@ KEYWORDS="amd64 ~ppc ~ppc64 x86"
 IUSE="emacs l10n_ja nls static-libs tk"
 
 RDEPEND="dev-perl/File-MMagic
-	emacs? ( virtual/emacs )
+	emacs? ( >=app-editors/emacs-23.1:* )
 	l10n_ja? (
 		app-i18n/nkf
 		|| (
@@ -77,8 +77,9 @@ src_test() {
 	emake -j1 check
 }
 
-src_install () {
-	emake DESTDIR="${D}" install
+src_install() {
+	default
+	find "${ED}" -name '*.la' -delete || die
 
 	if use emacs; then
 		elisp-install ${PN} lisp/*.el*
@@ -87,8 +88,6 @@ src_install () {
 		docinto lisp
 		dodoc lisp/ChangeLog*
 	fi
-
-	prune_libtool_files
 }
 
 pkg_postinst() {

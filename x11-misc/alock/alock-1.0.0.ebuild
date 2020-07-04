@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -6,7 +6,7 @@ inherit eutils toolchain-funcs
 
 # we need this since there are no tagged releases yet
 DESCRIPTION="locks the local X display until a password is entered"
-HOMEPAGE="http://darkshed.net/projects/alock
+HOMEPAGE="https://darkshed.net/projects/alock
 	https://github.com/mgumz/alock"
 SRC_URI="https://github.com/mgumz/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
@@ -21,7 +21,7 @@ DEPEND="x11-libs/libX11
 	x11-libs/libXrender
 	x11-libs/libXcursor
 	imlib? ( media-libs/imlib2[X] )
-	pam? ( virtual/pam )
+	pam? ( sys-libs/pam )
 	doc? ( app-text/asciidoc )"
 RDEPEND="${DEPEND}"
 

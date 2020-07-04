@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -21,7 +21,7 @@ RDEPEND=">=dev-libs/cxxtools-2.2.1
 			>=net-libs/gnutls-1.2.0
 			dev-libs/libgcrypt:0
 		)
-		!gnutls? ( dev-libs/openssl:* )
+		!gnutls? ( dev-libs/openssl:0= )
 	)"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
@@ -63,11 +63,11 @@ src_configure() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die
+	emake DESTDIR="${D}" install
 
 	dodoc AUTHORS ChangeLog README TODO
 	if use doc; then
-		dodoc doc/*.pdf || die
+		dodoc doc/*.pdf
 	fi
 
 	if use examples; then
@@ -77,7 +77,7 @@ src_install() {
 		cd "${S}"
 
 		insinto /usr/share/doc/${PF}/examples
-		doins -r sdk/demos/* || die
+		doins -r sdk/demos/*
 	fi
 
 	if use server; then

@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
@@ -14,7 +14,7 @@ SLOT="0"
 KEYWORDS="amd64 x86"
 IUSE="+ssl"
 
-DEPEND="ssl? ( dev-libs/openssl )"
+DEPEND="ssl? ( dev-libs/openssl:0= )"
 RDEPEND="${DEPEND}
 	virtual/qmail"
 
@@ -41,25 +41,25 @@ src_prepare() {
 
 src_configure() {
 	econf \
-		$(use_enable ssl tls) || die "econf failed"
+		$(use_enable ssl tls)
 	cd ../utils
-	econf || die "econf failed in utils"
+	econf
 }
 
 src_compile() {
-	emake CFLAGS="${CFLAGS}" || die "emake failed"
+	emake CFLAGS="${CFLAGS}"
 	cd ../utils
-	emake CFLAGS="${CFLAGS}" || die "emake in utils died"
+	emake CFLAGS="${CFLAGS}"
 }
 
 src_install() {
-	dobin ${PN} || die "Installing ${PN} binary failed"
+	dobin ${PN}
 	insinto /etc/${PN}
-	doins ${PN}.conf || die "Installing ${PN} configuration file failed"
+	doins ${PN}.conf
 	dodir /var/tmp/${PN}/graylist
 	fowners -R qmaild /var/tmp/${PN}/graylist
 	cd ../utils
-	dobin domain2path || die "Installing domain2path binary failed"
+	dobin domain2path
 	cd ../documentation
 	dodoc {Changelog,INSTALL,UPGRADING}.txt
 	dohtml FAQ.html \

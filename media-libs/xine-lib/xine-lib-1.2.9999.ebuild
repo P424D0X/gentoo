@@ -1,18 +1,18 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit flag-o-matic libtool multilib
+inherit flag-o-matic libtool
 
 if [[ ${PV} == *9999* ]]; then
-	EHG_REPO_URI="http://hg.debian.org/hg/xine-lib/xine-lib-1.2"
+	EHG_REPO_URI="http://hg.code.sf.net/p/xine/xine-lib-1.2"
 	inherit autotools mercurial
 	unset NLS_IUSE
 	NLS_DEPEND="sys-devel/gettext"
 	NLS_RDEPEND="virtual/libintl"
 else
-	KEYWORDS="~amd64 ~arm64 ~hppa ~ppc ~ppc64 ~x86 ~amd64-fbsd ~x86-fbsd"
+	KEYWORDS="~amd64 ~arm64 ~hppa ~ppc ~ppc64 ~x86"
 	SRC_URI="mirror://sourceforge/xine/${P}.tar.xz"
 	NLS_IUSE="nls"
 	NLS_DEPEND="nls? ( sys-devel/gettext )"
@@ -24,12 +24,13 @@ HOMEPAGE="http://xine.sourceforge.net/"
 
 LICENSE="GPL-2"
 SLOT="1"
-IUSE="a52 aac aalib +alsa altivec bluray +css dts dvb dxr3 fbcon flac fusionsound gtk imagemagick ipv6 jack jpeg libav libcaca mad +mmap mng modplug musepack opengl oss pulseaudio samba sdl speex theora truetype v4l vaapi vcd vdpau vdr vidix +vis vorbis vpx wavpack +X +xcb xinerama +xv xvmc ${NLS_IUSE}"
+IUSE="a52 aac aalib +alsa altivec bluray +css dts dvb dxr3 fbcon flac gtk imagemagick ipv6 jack jpeg libcaca mad +mmap mng modplug musepack opengl oss pulseaudio samba sdl speex theora truetype v4l vaapi vcd vdpau vdr vidix +vis vorbis vpx wavpack +X xinerama +xv xvmc ${NLS_IUSE}"
 
 RDEPEND="${NLS_RDEPEND}
 	dev-libs/libxdg-basedir
 	media-libs/libdvdnav
-	sys-libs/zlib
+	media-video/ffmpeg:0=
+	sys-libs/zlib:=
 	virtual/libiconv
 	a52? ( media-libs/a52dec )
 	aac? ( media-libs/faad2 )
@@ -40,78 +41,76 @@ RDEPEND="${NLS_RDEPEND}
 	dts? ( media-libs/libdca )
 	dxr3? ( media-libs/libfame )
 	flac? ( media-libs/flac )
-	fusionsound? ( >=dev-libs/DirectFB-1.7.1[fusionsound] )
 	gtk? ( x11-libs/gdk-pixbuf:2 )
 	imagemagick? ( virtual/imagemagick-tools )
-	jack? ( >=media-sound/jack-audio-connection-kit-0.100 )
+	jack? ( virtual/jack )
 	jpeg? ( virtual/jpeg:0 )
-	!libav? ( media-video/ffmpeg:0= )
-	libav? (
-		media-libs/libpostproc:0=
-		media-video/libav:0=
-		)
 	libcaca? ( media-libs/libcaca )
 	mad? ( media-libs/libmad )
-	mng? ( media-libs/libmng )
+	mng? ( media-libs/libmng:= )
 	modplug? ( >=media-libs/libmodplug-0.8.8.1 )
 	musepack? ( >=media-sound/musepack-tools-444 )
 	opengl? (
 		virtual/glu
 		virtual/opengl
-		)
+	)
 	pulseaudio? ( media-sound/pulseaudio )
 	samba? ( net-fs/samba )
 	sdl? ( media-libs/libsdl )
 	speex? (
 		media-libs/libogg
 		media-libs/speex
-		)
+	)
 	theora? (
 		media-libs/libogg
 		media-libs/libtheora
-		)
+	)
 	truetype? (
 		media-libs/fontconfig
 		media-libs/freetype:2
-		)
+	)
 	v4l? ( media-libs/libv4l )
 	vaapi? ( x11-libs/libva:0=[X,opengl] )
 	vcd? (
 		>=media-video/vcdimager-0.7.23
 		dev-libs/libcdio:0=[-minimal]
-		)
+	)
 	vdpau? ( x11-libs/libvdpau )
 	vorbis? (
 		media-libs/libogg
 		media-libs/libvorbis
-		)
+	)
 	vpx? ( media-libs/libvpx:0= )
 	wavpack? ( media-sound/wavpack )
 	X? (
 		x11-libs/libX11
 		x11-libs/libXext
-		)
-	xcb? ( x11-libs/libxcb )
+		x11-libs/libxcb
+	)
 	xinerama? ( x11-libs/libXinerama )
 	xv? ( x11-libs/libXv )
-	xvmc? ( x11-libs/libXvMC )"
+	xvmc? ( x11-libs/libXvMC )
+"
 DEPEND="${RDEPEND}
 	${NLS_DEPEND}
 	app-arch/xz-utils
-	virtual/pkgconfig
 	>=sys-devel/libtool-2.2.6b
+	virtual/pkgconfig
 	oss? ( virtual/os-headers )
 	v4l? ( virtual/os-headers )
 	X? (
 		x11-base/xorg-proto
 		x11-libs/libXt
-		)
+	)
 	xv? ( x11-base/xorg-proto )
 	xvmc? ( x11-base/xorg-proto )
-	xinerama? ( x11-base/xorg-proto )"
-REQUIRED_USE="vidix? ( || ( X fbcon ) )
+	xinerama? ( x11-base/xorg-proto )
+"
+REQUIRED_USE="
+	vidix? ( || ( X fbcon ) )
 	xv? ( X )
-	xinerama? ( X )"
+	xinerama? ( X )
+"
 
 src_prepare() {
 	default
@@ -147,11 +146,13 @@ src_configure() {
 		--disable-real-codecs
 		--disable-v4l
 		--disable-w32dll
+		--enable-avformat
 		--with-external-dvdnav
 		--with-real-codecs-path=/usr/$(get_libdir)/codecs
 		--with-w32-path=${win32dir}
 		--with-xv-path=/usr/$(get_libdir)
 		--without-esound
+		--without-fusionsound
 		$(use_enable a52 a52dec)
 		$(use_enable aac faad)
 		$(use_enable aalib)
@@ -186,7 +187,6 @@ src_configure() {
 		$(use_enable vpx)
 		$(use_with alsa)
 		$(use_with flac libflac)
-		$(use_with fusionsound)
 		$(use_with imagemagick)
 		$(use_with jack)
 		$(use_with libcaca caca)
@@ -199,13 +199,9 @@ src_configure() {
 		$(use_with vorbis)
 		$(use_with wavpack)
 		$(use_with X x)
-		$(use_with xcb)
+		$(use_with X xcb)
 	)
 	[[ ${PV} == *9999* ]] || myconf+=( $(use_enable nls) )
-
-	if ! use libav && has_version '>=media-video/ffmpeg-2.2:0'; then
-		myconf+=( --enable-avformat ) #507474
-	fi
 
 	econf "${myconf[@]}"
 }
@@ -218,5 +214,5 @@ src_compile() {
 src_install() {
 	default
 	find "${D}" -name '*.la' -delete || die
-	rm -f "${ED}"usr/share/doc/${PF}/COPYING
+	rm -f "${ED}"usr/share/doc/${PF}/COPYING || die
 }

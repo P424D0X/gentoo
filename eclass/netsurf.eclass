@@ -1,9 +1,11 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# @DEAD
 # @ECLASS: netsurf.eclass
 # @MAINTAINER:
-# Michael Weber <xmw@gentoo.org>
+# maintainer-needed@gentoo.org
+# @SUPPORTED_EAPIS: 5 6 7
 # @BLURB: Handle buildsystem of www.netsurf-browser.org components
 # @DESCRIPTION:
 # Handle unpacking and usage of separate buildsystem tarball and manage

@@ -1,8 +1,8 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-USE_RUBY="ruby22 ruby23 ruby24"
+USE_RUBY="ruby23 ruby24 ruby25 ruby26"
 
 RUBY_FAKEGEM_RECIPE_DOC="rdoc"
 RUBY_FAKEGEM_EXTRADOC="History.rdoc README.rdoc"
@@ -10,7 +10,7 @@ RUBY_FAKEGEM_EXTRADOC="History.rdoc README.rdoc"
 inherit ruby-fakegem
 
 DESCRIPTION="Flog reports the most tortured code in an easy to read pain report"
-HOMEPAGE="http://ruby.sadi.st/"
+HOMEPAGE="https://ruby.sadi.st/"
 LICENSE="MIT"
 
 KEYWORDS="~amd64 ~x86"

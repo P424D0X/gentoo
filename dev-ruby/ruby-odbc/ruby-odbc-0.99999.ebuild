@@ -1,9 +1,9 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-USE_RUBY="ruby22 ruby23 ruby24 ruby25"
+USE_RUBY="ruby24 ruby25 ruby26 ruby27"
 
 RUBY_FAKEGEM_TASK_TEST=""
 RUBY_FAKEGEM_TASK_DOC=""
@@ -17,7 +17,7 @@ SRC_URI="http://www.ch-werner.de/rubyodbc/${P}.tar.gz"
 
 LICENSE="|| ( GPL-2 Ruby )"
 SLOT="0"
-KEYWORDS="~amd64 ~ppc ~x86"
+KEYWORDS="amd64 ppc x86"
 IUSE=""
 
 DEPEND="${DEPEND} >=dev-db/unixODBC-2.0.6"
@@ -44,7 +44,7 @@ each_ruby_configure() {
 
 each_ruby_compile() {
 	for dir in ext ext/utf8; do
-		emake V=1 -C${dir} || die "emake (${dir}) failed"
+		emake V=1 -C${dir}
 	done
 }
 
@@ -57,5 +57,5 @@ each_ruby_install() {
 
 all_ruby_install() {
 	all_fakegem_install
-	dohtml doc/*.html || die
+	dodoc doc/*.html
 }

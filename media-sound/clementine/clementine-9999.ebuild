@@ -1,39 +1,57 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 PLOCALES="af ar be bg bn br bs ca cs cy da de el en en_CA en_GB eo es et eu fa fi fr ga gl he he_IL hi hr hu hy ia id is it ja ka kk ko lt lv mk_MK mr ms my nb nl oc pa pl pt pt_BR ro ru si_LK sk sl sr sr@latin sv te tr tr_TR uk uz vi zh_CN zh_TW"
 
+inherit cmake flag-o-matic l10n virtualx xdg
+
 MY_P="${P/_}"
 if [[ ${PV} == *9999* ]]; then
-	EGIT_BRANCH="qt5"
 	EGIT_REPO_URI="https://github.com/clementine-player/Clementine.git"
-	GIT_ECLASS="git-r3"
+	inherit git-r3
 else
-	SRC_URI="https://github.com/clementine-player/Clementine/archive/${PV/_}.tar.gz -> ${P}.tar.gz"
+	S="${WORKDIR}/${P/_}"
+	SRC_URI_BASE="https://github.com/clementine-player/${PN^}"
+	COMMIT=""
+	if [[ -n "${COMMIT}" ]] ; then
+		SRC_URI="${SRC_URI_BASE}/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
+		S="${WORKDIR}/${PN^}-${COMMIT}"
+	elif [[ $(ver_cut 3) -gt 90 ]] ; then
+		SRC_URI="${SRC_URI_BASE}/archive/${PV}.tar.gz -> ${P}.tar.gz"
+	else
+		SRC_URI="${SRC_URI_BASE}/releases/download/${PV/_}/${P/_}.tar.xz"
+	fi
 	KEYWORDS="~amd64 ~x86"
-	S="${WORKDIR}/${MY_P^}"
 fi
-inherit cmake-utils flag-o-matic gnome2-utils l10n virtualx xdg-utils ${GIT_ECLASS}
-unset GIT_ECLASS
-
 DESCRIPTION="Modern music player and library organizer based on Amarok 1.4 and Qt"
 HOMEPAGE="https://www.clementine-player.org https://github.com/clementine-player/Clementine"
 
 LICENSE="GPL-3"
 SLOT="0"
 IUSE="box cdda +dbus debug dropbox googledrive ipod lastfm mms moodbar mtp projectm pulseaudio seafile skydrive test +udisks wiimote"
+RESTRICT="!test? ( test )"
 
 REQUIRED_USE="
 	udisks? ( dbus )
 	wiimote? ( dbus )
 "
 
+BDEPEND="
+	>=dev-cpp/gtest-1.8.0
+	dev-qt/linguist-tools:5
+	sys-devel/gettext
+	virtual/pkgconfig
+	test? (
+		dev-qt/qttest:5
+		gnome-base/gsettings-desktop-schemas
+	)
+"
 COMMON_DEPEND="
 	app-crypt/qca:2[qt5(+)]
 	dev-db/sqlite:=
-	dev-libs/crypto++
+	dev-libs/crypto++:=
 	dev-libs/glib:2
 	dev-libs/libxml2
 	dev-libs/protobuf:=
@@ -47,10 +65,9 @@ COMMON_DEPEND="
 	media-libs/gstreamer:1.0
 	media-libs/gst-plugins-base:1.0
 	>=media-libs/libmygpo-qt-1.0.9[qt5(+)]
-	media-libs/taglib
+	>=media-libs/taglib-1.11.1_p20181028
 	sys-libs/zlib
 	virtual/glu
-	virtual/opengl
 	x11-libs/libX11
 	cdda? ( dev-libs/libcdio:= )
 	dbus? ( dev-qt/qtdbus:5 )
@@ -60,15 +77,10 @@ COMMON_DEPEND="
 	mtp? ( >=media-libs/libmtp-1.0.0 )
 	projectm? (
 		media-libs/glew:=
-		>=media-libs/libprojectm-1.2.0
+		>=media-libs/libprojectm-1.2.0:=
+		virtual/opengl
 	)
 "
-# Note: sqlite driver of dev-qt/qtsql is bundled, so no sqlite use is required; check if this can be overcome someway;
-# Libprojectm-1.2 seems to work fine, so no reason to use bundled version; check clementine's patches:
-# https://github.com/clementine-player/Clementine/tree/master/3rdparty/libprojectm/patches
-# Still possibly essential but not applied yet patches are:
-# 06-fix-numeric-locale.patch
-# 08-stdlib.h-for-rand.patch
 RDEPEND="${COMMON_DEPEND}
 	media-plugins/gst-plugins-meta:1.0
 	media-plugins/gst-plugins-soup:1.0
@@ -78,34 +90,24 @@ RDEPEND="${COMMON_DEPEND}
 	udisks? ( sys-fs/udisks:2 )
 "
 DEPEND="${COMMON_DEPEND}
-	>=dev-cpp/gtest-1.8.0
 	dev-libs/boost
-	dev-qt/linguist-tools:5
 	dev-qt/qtopengl:5
 	dev-qt/qtx11extras:5
 	dev-qt/qtxml:5
-	sys-devel/gettext
-	virtual/pkgconfig
 	box? ( dev-cpp/sparsehash )
 	dropbox? ( dev-cpp/sparsehash )
 	googledrive? ( dev-cpp/sparsehash )
 	pulseaudio? ( media-sound/pulseaudio )
 	seafile? ( dev-cpp/sparsehash )
 	skydrive? ( dev-cpp/sparsehash )
-	test? (
-		dev-qt/qttest:5
-		gnome-base/gsettings-desktop-schemas
-	)
 "
 
 DOCS=( Changelog README.md )
 
-PATCHES=( "${FILESDIR}"/${PN}-fts3-tokenizer.patch )
-
 src_prepare() {
 	l10n_find_plocales_changes "src/translations" "" ".po"
 
-	cmake-utils_src_prepare
+	cmake_src_prepare
 	# some tests fail or hang
 	sed -i \
 		-e '/add_test_file(translations_test.cpp/d' \
@@ -115,6 +117,8 @@ src_prepare() {
 		sed -e "/find_package.*Qt5/s:\ Test::" -i CMakeLists.txt || die
 		cmake_comment_add_subdirectory tests
 	fi
+
+	rm -r 3rdparty/{libmygpo-qt,libmygpo-qt5,taglib} || die
 }
 
 src_configure() {
@@ -130,14 +134,13 @@ src_configure() {
 		-DENABLE_DEVICEKIT=OFF
 		-DENABLE_GIO=ON
 		-DENABLE_SPOTIFY_BLOB=OFF
-		-DUSE_BUILTIN_TAGLIB=OFF
 		-DUSE_SYSTEM_GMOCK=ON
 		-DUSE_SYSTEM_PROJECTM=ON
 		-DBUNDLE_PROJECTM_PRESETS=OFF
 		-DLINGUAS="$(l10n_get_locales)"
 		-DENABLE_BOX="$(usex box)"
 		-DENABLE_AUDIOCD="$(usex cdda)"
-		-DENABLE_DBUS="$(usex dbus)"
+		-DCMAKE_DISABLE_FIND_PACKAGE_Qt5DBus=$(usex !dbus)
 		-DENABLE_DROPBOX="$(usex dropbox)"
 		-DENABLE_GOOGLE_DRIVE="$(usex googledrive)"
 		-DENABLE_LIBGPOD="$(usex ipod)"
@@ -154,7 +157,7 @@ src_configure() {
 
 	use !debug && append-cppflags -DQT_NO_DEBUG_OUTPUT
 
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 
 src_test() {
@@ -163,15 +166,9 @@ src_test() {
 }
 
 pkg_postinst() {
-	xdg_desktop_database_update
-	gnome2_icon_cache_update
+	xdg_pkg_postinst
 
 	elog "Note that list of supported formats is controlled by media-plugins/gst-plugins-meta "
 	elog "USE flags. You may be interested in setting aac, flac, mp3, ogg or wavpack USE flags "
 	elog "depending on your preferences"
-}
-
-pkg_postrm() {
-	xdg_desktop_database_update
-	gnome2_icon_cache_update
 }

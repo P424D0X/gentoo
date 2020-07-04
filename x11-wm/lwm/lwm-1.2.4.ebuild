@@ -9,7 +9,7 @@ DESCRIPTION="The ultimate lightweight window manager"
 SRC_URI="http://www.jfc.org.uk/files/lwm/${P}.tar.gz"
 HOMEPAGE="http://www.jfc.org.uk/software/lwm.html"
 
-KEYWORDS="amd64 ppc ~sparc x86 ~x86-fbsd"
+KEYWORDS="amd64 ppc ~sparc x86"
 LICENSE="GPL-2"
 SLOT="0"
 
@@ -22,9 +22,8 @@ RDEPEND="
 
 DEPEND="
 	${RDEPEND}
+	x11-base/xorg-proto
 	x11-misc/imake
-	x11-proto/xextproto
-	x11-proto/xproto
 "
 
 DOCS=( AUTHORS BUGS ChangeLog )

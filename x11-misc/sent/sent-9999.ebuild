@@ -1,7 +1,7 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 inherit git-r3 savedconfig toolchain-funcs
 
 DESCRIPTION="Simple plaintext presentation tool"
@@ -31,7 +31,7 @@ src_prepare() {
 		-e '/^  echo/d' \
 		Makefile || die
 
-	restore_config config.def.h
+	restore_config config.h
 }
 
 src_compile() {
@@ -40,4 +40,5 @@ src_compile() {
 
 src_install() {
 	emake DESTDIR="${D}" PREFIX="/usr" install
+	save_config config.h
 }

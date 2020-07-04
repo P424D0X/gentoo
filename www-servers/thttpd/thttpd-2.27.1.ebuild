@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
@@ -14,7 +14,7 @@ else
 	MY_P="s${P}"
 	S="${WORKDIR}/${MY_P}"
 	SRC_URI="https://github.com/blueness/sthttpd/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="amd64 arm ~hppa ~mips ppc ppc64 sparc x86 ~amd64-linux ~arm-linux ~x86-linux"
+	KEYWORDS="amd64 arm ~hppa ~mips ppc ppc64 sparc x86 ~amd64-linux ~x86-linux"
 fi
 
 DESCRIPTION="Fork of thttpd, a small, fast, multiplexing webserver"
@@ -52,7 +52,7 @@ src_configure() {
 	econf WEBDIR=${THTTPD_DOCROOT}
 }
 
-src_install () {
+src_install() {
 	default
 
 	newinitd "${FILESDIR}"/thttpd.init.1 thttpd

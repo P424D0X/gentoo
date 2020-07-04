@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -7,12 +7,12 @@ MY_PN="${PN#nagios-}"
 MY_P="${MY_PN}-${PV}"
 
 DESCRIPTION="A nagios plugin for checking MySQL server health"
-HOMEPAGE="https://labs.consol.de/nagios/${MY_PN}/"
+HOMEPAGE="https://labs.consol.de/nagios/check_mysql_health/"
 SRC_URI="https://labs.consol.de/assets/downloads/nagios/${MY_P}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE=""
 
 # Found by grepping for "use " in the built
@@ -26,7 +26,7 @@ RDEPEND="dev-perl/DBD-mysql
 
 S="${WORKDIR}/${MY_P}"
 
-src_configure(){
+src_configure() {
 	# Should match net-analyzer/{monitoring,nagios}-plugins.
 	econf --libexecdir="/usr/$(get_libdir)/nagios/plugins"
 }

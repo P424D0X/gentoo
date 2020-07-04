@@ -14,7 +14,7 @@ RESTRICT="mirror"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE=""
 
 DEPEND=">=virtual/jdk-1.5"
@@ -30,5 +30,5 @@ src_compile() {
 src_install() {
 	java-pkg_dojar dist/abcl.jar
 	java-pkg_dolauncher ${PN} --java_args "-server -Xrs" --main org.armedbear.lisp.Main
-	dodoc README || die "Can't install README"
+	dodoc README
 }

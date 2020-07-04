@@ -1,20 +1,20 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit multilib toolchain-funcs flag-o-matic
 
 DESCRIPTION="american fuzzy lop - compile-time instrumentation fuzzer"
-HOMEPAGE="http://lcamtuf.coredump.cx/afl/"
-SRC_URI="http://lcamtuf.coredump.cx/afl/releases/${P}.tgz"
+HOMEPAGE="https://lcamtuf.coredump.cx/afl/"
+SRC_URI="https://lcamtuf.coredump.cx/afl/releases/${P}.tgz"
 
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE=""
 DEPEND="sys-devel/gcc:*
-	sys-devel/clang:*"
+	sys-devel/clang:="
 RDEPEND="${DEPEND}"
 QA_PREBUILT="/usr/share/afl/testcases/others/elf/small_exec.elf"
 

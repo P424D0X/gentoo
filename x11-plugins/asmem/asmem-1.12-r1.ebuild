@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -7,7 +7,7 @@ inherit toolchain-funcs
 
 DESCRIPTION="Monitor the utilization level of memory, cache and swap space"
 HOMEPAGE="http://www.tigr.net/"
-SRC_URI="${HOMEPAGE}afterstep/download/${PN}/${P}.tar.gz"
+SRC_URI="http://www.tigr.net/afterstep/download/${PN}/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -21,7 +21,7 @@ RDEPEND="x11-libs/libX11
 	x11-libs/libXext
 	jpeg? ( virtual/jpeg:0 )"
 DEPEND="${RDEPEND}
-	x11-proto/xproto"
+	x11-base/xorg-proto"
 
 PATCHES=( "${FILESDIR}/respect-ldflags.patch" )
 
